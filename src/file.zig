@@ -4,10 +4,9 @@ const fs = std.fs;
 
 pub fn createNewDir(dir_name: []const u8) !void {
     var home = fs.cwd();
-    defer home.close();
 
     home.makeDir(dir_name) catch {
-        std.log.info("dir name already exist.\n", .{});
+        std.log.info("{s} already exist.", .{dir_name});
     };
     const dir = try home.openDir(dir_name, .{});
     const toml_file = try dir.createFile("xj.toml", .{});
@@ -28,7 +27,9 @@ pub fn createNewDir(dir_name: []const u8) !void {
 
     _ = try toml_file.write(toml_content);
 
-    try dir.makeDir("issue-1");
+    dir.makeDir("issue-1") catch {
+        std.log.info("issue-1 already exist.", .{});
+    };
     const sub_dir = try dir.openDir("issue-1", .{});
 
     const outfile = try sub_dir.createFile("1-first.pd", .{});
