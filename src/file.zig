@@ -13,14 +13,14 @@ pub fn createNewDir(dir_name: []const u8) !void {
     defer toml_file.close();
     const toml_content =
         \\blog_name = "StaticBlogName"
-        \\github_path = "https://github_path"
+        \\github = "https://github_path"
         \\[[menus]]
         \\name = "About" 
         \\url = "/about"
         \\[[menus]]
         \\name = "Blog"
         \\url = "/blog"
-        \\[[issue]]
+        \\[[issues]]
         \\title = "js相关"
         \\path = "content/issue-1"
     ;
@@ -42,12 +42,12 @@ pub fn createNewDir(dir_name: []const u8) !void {
     const issue_toml = try sub_dir.createFile("xj.toml", .{});
     defer issue_toml.close();
     const issue_toml_content =
-        \\[[article]]
+        \\[[articles]]
         \\file = "1-first.pd"
         \\title = "first article"
         \\author = ""
         \\pub_date = "2023-02-17"
-        \\[[article]]
+        \\[[articles]]
         \\file = "2-first.pd"
         \\title = "second article"
         \\author = ""
@@ -56,65 +56,100 @@ pub fn createNewDir(dir_name: []const u8) !void {
     _ = try issue_toml.write(issue_toml_content);
 }
 
-// fn processFilename(al: std.mem.Allocator, cwd: std.fs.Dir, path:[]const u8) !void {
-//     // equivalent of ts readdirAndStat
-//     // get the dirent of each entry in this directory
-//     // but we need to add more info: file sizes and errors. only the former will be used in matching
+pub fn getFilename( al: std.mem.Allocator,  cwd: std.fs.Dir, path:[]const u8) !?[]const u8 {
+    var dir = cwd.openIterableDir(path, .{}) catch |err| {
+        var msg: ?[]const u8 = switch (err) {
+            error.NotDir => "not a directory",
+            error.FileNotFound => "doesn't exist",
+            error.AccessDenied => "access denied",
+            else => {
+                std.debug.print("** BANG: {s} {any}\n", .{path, err});
+                @panic("unexpected error trying to open a directory");
+            },
+        };
+        std.debug.print("* {s}: '{s}'\n", .{msg.?, path});
+        return null;
+    };
+    defer dir.close();
 
-//     var dir = cwd.openIterableDir(path, .{}) catch |err| {
-//         var msg: ?[]const u8 = switch (err) {
-//             error.NotDir => "not a directory",
-//             error.FileNotFound => "doesn't exist",
-//             error.AccessDenied => "access denied",
-//             else => {
-//                 std.debug.print("** BANG: {s} {any}\n", .{path, err});
-//                 @panic("unexpected error trying to open a directory");
-//             },
-//         };
-//         std.debug.print("* {s}: '{s}'\n", .{msg.?, path});
-//         return;
-//     };
-//     defer dir.close();
+    var file: []const u8 = undefined;
+    var dirit = dir.iterate();
+    while (try dirit.next()) |entry| {
+        // check for zero-length files and unopenable files
+        if (entry.kind == .File) {
+            const f: std.fs.File = dir.dir.openFile(entry.name, .{}) catch {
+                return null;
+            };
+            defer f.close();
 
-//     var dirit = dir.iterate();
+            if ((try f.stat()).size == 0) {
+                return null;
+            }
+        }
+        if (std.mem.endsWith(u8, entry.name, ".toml")) {
+            const str = try std.fmt.allocPrint(al, "{s}", .{entry.name});
+            file = str;
+        }
+    }
 
-//     var dirent_list = std.ArrayList([]const u8).init(al);
+    return file;
+}
 
-//     while (try dirit.next()) |entry| {
-//         // check for zero-length files and unopenable files
-//         var kindSymbol: ?u8 = null;
-//         if (entry.kind == .File) blk: {
-//             const f: std.fs.File = dir.dir.openFile(entry.name, .{}) catch {
-//                 kindSymbol = '!';
-//                 break :blk;
-//             };
-//             defer f.close();
+pub fn processFilename( al: std.mem.Allocator,  cwd: std.fs.Dir, path:[]const u8) !void {
+    var dir = cwd.openIterableDir(path, .{}) catch |err| {
+        var msg: ?[]const u8 = switch (err) {
+            error.NotDir => "not a directory",
+            error.FileNotFound => "doesn't exist",
+            error.AccessDenied => "access denied",
+            else => {
+                std.debug.print("** BANG: {s} {any}\n", .{path, err});
+                @panic("unexpected error trying to open a directory");
+            },
+        };
+        std.debug.print("* {s}: '{s}'\n", .{msg.?, path});
+        return;
+    };
+    defer dir.close();
 
-//             if ((try f.stat()).size == 0) {
-//                 kindSymbol = '0';
-//             } else {
-//                 kindSymbol = ' ';
-//             }
-//         } else {
-//             kindSymbol = switch (entry.kind) {
-//                 .Directory => '/',
-//                 .SymLink => '~',
-//                 else => '?',
-//             };
-//         }
+    var dirit = dir.iterate();
 
-//         const str = try std.fmt.allocPrint(al, "{c} {s}", .{kindSymbol.?, entry.name});
-//         try dirent_list.append(str);
-//     }
+    var dirent_list = std.ArrayList([]const u8).init(al);
+    defer dirent_list.deinit();
 
-//     std.sort.sort([]const u8, dirent_list.items, {}, myLessThan);
+    while (try dirit.next()) |entry| {
+        // check for zero-length files and unopenable files
+        var kindSymbol: ?u8 = null;
+        if (entry.kind == .File) blk: {
+            const f: std.fs.File = dir.dir.openFile(entry.name, .{}) catch {
+                kindSymbol = '!';
+                break :blk;
+            };
+            defer f.close();
 
-//     for (dirent_list.items) |dirent| {
-//         std.debug.print("{s}\n", .{dirent});
-//     }
+            if ((try f.stat()).size == 0) {
+                kindSymbol = '0';
+            } else {
+                kindSymbol = ' ';
+            }
+        } else {
+            kindSymbol = switch (entry.kind) {
+                .Directory => '/',
+                .SymLink => '~',
+                else => '?',
+            };
+        }
 
-//     for (dirent_list.items) |dirent| {
-//         al.free(dirent);
-//     }
-//     dirent_list.deinit();
-// }
+        const str = try std.fmt.allocPrint(al, "{c} {s}", .{kindSymbol.?, entry.name});
+        try dirent_list.append(str);
+    }
+
+    // std.sort.sort([]const u8, dirent_list.items, {}, myLessThan);
+
+    for (dirent_list.items) |dirent| {
+        std.debug.print("{s}\n", .{dirent});
+    }
+
+    for (dirent_list.items) |dirent| {
+        al.free(dirent);
+    }
+}

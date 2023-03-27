@@ -6,6 +6,7 @@ const log = std.log;
 const flag = yazap.flag;
 const App = yazap.App;
 const file = @import("file.zig");
+const build = @import("build.zig").build;
 
 pub fn main() !void {
     try runCmd();
@@ -68,6 +69,7 @@ fn runCmd() !void {
         //遍历article数组，拿到file path，读取对应文件，渲染到html
         //todo 思考如何拼接html相关内容,以及对应创建文件？
         //创建build目录，往里写入html、css、js文件
+        try build();
         return;
     }
 
