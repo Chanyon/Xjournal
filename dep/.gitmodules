@@ -1,0 +1,15 @@
+[submodule "progdoc"]
+	path = progdoc
+	url = https://github.com/sxwangzhiwen/progdoc.git
+[submodule "zap"]
+	path = zap
+	url = https://github.com/zigzap/zap.git
+[submodule "yazap"]
+	path = yazap
+	url = https://github.com/PrajwalCH/yazap.git
+[submodule "zig-string"]
+	path = zig-string
+	url = https://github.com/JakubSzark/zig-string.git
+[submodule "zig-toml"]
+	path = zig-toml
+	url = https://github.com/sam701/zig-toml.git
