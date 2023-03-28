@@ -79,33 +79,6 @@ fn runCmd() !void {
     }
 }
 
-fn genHtml() void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer arena.deinit();
-    var al = arena.allocator();
-    //打开输入文件目录，并一次性读入到内存
-    var home = std.fs.cwd();
-    defer home.close();
-    //解析生成html
-    const str =
-        \\ progdoc格式说明
-        \\简介
-        \\progdoc格式主要用于编写软件开发和程序设计方面的设计、使用说明、API等文档。
-        \\progdoc把符合progdoc格式的文本文件转换为单一html文件。
-        \\progdoc格式文件的文件名后缀通常是 `.pd` ，文件编码必须是UTF-8。
-        \\progdoc格式设计原则为：
-        \\#- 格式尽可能简约，以降低学习使用难度
-        \\#- 使用 # #` 这两个程序设计中很少使用的字符作为格式前导字符
-        \\#- 有内嵌html功能，以用于文档中插入latex数学公式等需求
-    ;
-    var s = try prog.@"Tprogdoc格式转换状态机".createStatusMachine(al, str);
-    try s.parseProgdoc();
-    //  创建输出文件，并一次性写入解析结果
-    var outfile = try home.createFile("pc.html", .{});
-    defer outfile.close();
-    try outfile.writeAll(s.out.items);
-}
-
 test "simple test" {
     var list = std.ArrayList(i32).init(std.testing.allocator);
     defer list.deinit(); // try commenting this out and see if zig detects the memory leak!

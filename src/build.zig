@@ -4,6 +4,8 @@ const String = @import("zig_string").String;
 const configs = @import("./config.zig");
 const idxHtml = @import("./front/index.zig");
 const getFilename = @import("./file.zig").getFilename;
+const createHtmlFile = @import("./file.zig").createHtmlFile;
+const genHtml = @import("./file.zig").pd2Html;
 
 pub fn build() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
@@ -34,7 +36,9 @@ pub fn build() !void {
     }
     try myString.concat(idxHtml.header_end);
 
-    const cwd = std.fs.cwd();
+    var home = std.fs.cwd();
+    defer home.close();
+
     var parser2 = toml.Parser(configs.ArticleConfig).init(allocator);
     defer parser2.deinit();
 
@@ -43,10 +47,9 @@ pub fn build() !void {
     try myString.concat(idxHtml.main_start);
     for (master_config.issues) |item| {
         // !delete ?
-        const toml_file = try getFilename(allocator, cwd, item.path);
+        const toml_file = try getFilename(allocator, home, item.path);
         if (toml_file) |file| {
             const path: []const u8 = try std.fmt.allocPrint(allocator, "./{s}/{s}", .{ item.path, file });
-            std.log.info("{s}", .{path});
             try parser2.parseFile(path, &article_config);
             // section tag
             const section_start = "<section class=\"h-auto border-b-2 border-black border-double\">";
@@ -59,13 +62,9 @@ pub fn build() !void {
             try myString.concat(h3);
             // TODO js impl link herf
             for (article_config.articles) |link| {
-                std.log.info("{s}", .{link.author});
                 const li_link: []const u8 = try std.fmt.allocPrint(allocator, 
                 "<li class=\"h-16 p-2\"><a href=\"#\">{s}</a></li>", .{link.title});
                 try myString.concat(li_link);
-
-                // TODO create file.html to build dir
-                // _ = genHtml();
             }
 
             const section_end = "</ul></section>";
@@ -80,5 +79,14 @@ pub fn build() !void {
     const footer_end: []const u8 = try std.fmt.allocPrint(allocator, "{s}</footer>", .{master_config.github});
     try myString.concat(footer_end);
     try myString.concat(idxHtml.html_end);
-    std.debug.print("{s} \n", .{myString.str()});
+    
+    // create index.html
+    try createHtmlFile(home, "dist", &myString);
+    // 遍历生成html file
+    for (master_config.issues) |item| {
+        for (article_config.articles) |link| {
+            try genHtml(home, item.path, link.file);
+            std.debug.print("{s} {s} => html\n", .{item.path, link.file});
+        }
+    }
 }

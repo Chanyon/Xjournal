@@ -1,5 +1,6 @@
 const std = @import("std");
 const prog = @import("progdoc");
+const String = @import("zig_string").String;
 const fs = std.fs;
 
 pub fn createNewDir(dir_name: []const u8) !void {
@@ -57,18 +58,81 @@ pub fn createNewDir(dir_name: []const u8) !void {
     _ = try issue_toml.write(issue_toml_content);
 }
 
-pub fn getFilename( al: std.mem.Allocator,  cwd: std.fs.Dir, path:[]const u8) !?[]const u8 {
+pub fn createHtmlFile(cwd: std.fs.Dir, dir_path: []const u8, content: *String) !void {
+    var dir: std.fs.Dir = undefined;
+    cwd.makeDir(dir_path) catch {
+        // std.log.info("{s} already exist.", .{dir_path});
+        dir = try cwd.openDir(dir_path, .{});
+        // TODO: 打开文件并写入, can't create file
+        const html_file = try dir.createFile("index.html", .{});
+        defer html_file.close();
+        _ = try html_file.write(content.*.str());
+    };
+    dir = try cwd.openDir(dir_path, .{});
+    const html_file = try dir.createFile("index.html", .{});
+    defer html_file.close();
+    _ = try html_file.write(content.*.str());
+}
+
+pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8) !void {
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    var al = arena.allocator();
+
+    const dir = home.openDir(open_dir, .{}) catch {
+        std.debug.print("open dir fail\n", .{});
+        return;
+    };
+    //读取文件
+    const pd_file = dir.readFileAlloc(al, file_name, 1024 * 1024) catch {
+        std.log.info("file not found\n", .{});
+        return;
+    };
+
+    //解析生成html
+    var s = try prog.@"Tprogdoc格式转换状态机".createStatusMachine(al, pd_file);
+    try s.parseProgdoc();
+    defer s.@"Fn清空状态机"();
+    //create dir and file
+    // content/issue-1
+    var dir_name = std.mem.split(u8, open_dir, "/");
+    var dir_name_it = dir_name.next().?;
+    dir_name_it = dir_name.next().?;
+
+    // example.pd
+    var html_file_name = std.mem.split(u8, file_name, ".");
+    const html_file_name_it = html_file_name.first();
+    const html = try std.fmt.allocPrint(al, "{s}.html", .{html_file_name_it});
+    //open dir
+    const dist_dir = try home.openDir("dist", .{});
+    
+    dist_dir.makeDir(dir_name_it) catch {
+        //todo ^
+        const sub_dir = try dist_dir.openDir(dir_name_it, .{});
+
+        const html_file = try sub_dir.createFile(html, .{});
+        defer html_file.close();
+        try html_file.writeAll(s.out.items);
+    };
+    const sub_dir = try dist_dir.openDir(dir_name_it, .{});
+
+    const html_file = try sub_dir.createFile(html, .{});
+    defer html_file.close();
+    try html_file.writeAll(s.out.items);
+}
+
+pub fn getFilename(al: std.mem.Allocator, cwd: std.fs.Dir, path: []const u8) !?[]const u8 {
     var dir = cwd.openIterableDir(path, .{}) catch |err| {
         var msg: ?[]const u8 = switch (err) {
             error.NotDir => "not a directory",
             error.FileNotFound => "doesn't exist",
             error.AccessDenied => "access denied",
             else => {
-                std.debug.print("** BANG: {s} {any}\n", .{path, err});
+                std.debug.print("** BANG: {s} {any}\n", .{ path, err });
                 @panic("unexpected error trying to open a directory");
             },
         };
-        std.debug.print("* {s}: '{s}'\n", .{msg.?, path});
+        std.debug.print("* {s}: '{s}'\n", .{ msg.?, path });
         return null;
     };
     defer dir.close();
@@ -96,18 +160,18 @@ pub fn getFilename( al: std.mem.Allocator,  cwd: std.fs.Dir, path:[]const u8) !?
     return file;
 }
 
-pub fn processFilename( al: std.mem.Allocator,  cwd: std.fs.Dir, path:[]const u8) !void {
+pub fn processFilename(al: std.mem.Allocator, cwd: std.fs.Dir, path: []const u8) !void {
     var dir = cwd.openIterableDir(path, .{}) catch |err| {
         var msg: ?[]const u8 = switch (err) {
             error.NotDir => "not a directory",
             error.FileNotFound => "doesn't exist",
             error.AccessDenied => "access denied",
             else => {
-                std.debug.print("** BANG: {s} {any}\n", .{path, err});
+                std.debug.print("** BANG: {s} {any}\n", .{ path, err });
                 @panic("unexpected error trying to open a directory");
             },
         };
-        std.debug.print("* {s}: '{s}'\n", .{msg.?, path});
+        std.debug.print("* {s}: '{s}'\n", .{ msg.?, path });
         return;
     };
     defer dir.close();
@@ -140,7 +204,7 @@ pub fn processFilename( al: std.mem.Allocator,  cwd: std.fs.Dir, path:[]const u8
             };
         }
 
-        const str = try std.fmt.allocPrint(al, "{c} {s}", .{kindSymbol.?, entry.name});
+        const str = try std.fmt.allocPrint(al, "{c} {s}", .{ kindSymbol.?, entry.name });
         try dirent_list.append(str);
     }
 
