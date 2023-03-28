@@ -4,6 +4,7 @@ const fs = std.fs;
 
 pub fn createNewDir(dir_name: []const u8) !void {
     var home = fs.cwd();
+    defer home.close();
 
     home.makeDir(dir_name) catch {
         std.log.info("{s} already exist.", .{dir_name});
