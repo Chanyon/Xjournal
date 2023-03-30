@@ -56,7 +56,7 @@ fn runCmd() !void {
             return;
         }
         if (serve_args.valueOf("port")) |port| {
-            log.info("port {s}", .{port});
+            log.info("open http://localhost:{s}", .{port});
         }
         return;
     }

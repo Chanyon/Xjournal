@@ -47,7 +47,6 @@ pub const footer_start =
 ;
 
 pub const html_end = 
-\\    </div>
 \\</body>
 \\</html>
 ;

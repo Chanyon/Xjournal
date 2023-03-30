@@ -3,9 +3,12 @@ const toml = @import("zig_toml");
 const String = @import("zig_string").String;
 const configs = @import("./config.zig");
 const idxHtml = @import("./front/index.zig");
+const idxJs = @import("./front/index-js.zig");
 const getFilename = @import("./file.zig").getFilename;
-const createHtmlFile = @import("./file.zig").createHtmlFile;
+const createFile = @import("./file.zig").createHtmlAndJsFile;
 const genHtml = @import("./file.zig").pd2Html;
+const splitTwoStep = @import("./file.zig").spiltTwoStep;
+const splitFirst = @import("./file.zig").splitFisrt;
 
 pub fn build() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
@@ -15,6 +18,10 @@ pub fn build() !void {
     var myString = String.init(allocator);
     defer myString.deinit();
     try myString.concat(idxHtml.html_start);
+
+    var jsString = String.init(allocator);
+    defer jsString.deinit();
+    try jsString.concat(idxJs.script_start);
 
     var parser = toml.Parser(configs.MasterConfig).init(allocator);
     defer parser.deinit();
@@ -31,7 +38,7 @@ pub fn build() !void {
 
     for (master_config.menus) |menu| {
         // TODO js impl link herf
-        const nav_link: []const u8 = try std.fmt.allocPrint(allocator, "<li class=\"mx-4\"><a href=\"{s}\">{s}</a></li>", .{ menu.name, menu.url });
+        const nav_link: []const u8 = try std.fmt.allocPrint(allocator, "<li class=\"mx-4\"><a data-href=\"{s}\">{s}</a></li>", .{ menu.url, menu.name });
         try myString.concat(nav_link);
     }
     try myString.concat(idxHtml.header_end);
@@ -60,11 +67,15 @@ pub fn build() !void {
             .{item.title});
 
             try myString.concat(h3);
-            // TODO js impl link herf
+            // TODO: article link
+            const dir_path = splitTwoStep(item.path, "/");
             for (article_config.articles) |link| {
+                const file_name = splitFirst(link.file, ".");
                 const li_link: []const u8 = try std.fmt.allocPrint(allocator, 
-                "<li class=\"h-16 p-2\"><a href=\"#\">{s}</a></li>", .{link.title});
+                "<li class=\"h-16 p-2\"><a data-href=\"/{s}/{s}\">{s}</a></li>", .{dir_path,file_name,link.title});
                 try myString.concat(li_link);
+                const obj_key_val = try std.fmt.allocPrint(allocator, "\n\"/{s}/{s}\":\"./{s}/{s}.html\",\n", .{dir_path,file_name,dir_path,file_name});
+                try jsString.concat(obj_key_val);
             }
 
             const section_end = "</ul></section>";
@@ -76,12 +87,16 @@ pub fn build() !void {
 
     try myString.concat(idxHtml.main_end);
     try myString.concat(idxHtml.footer_start);
-    const footer_end: []const u8 = try std.fmt.allocPrint(allocator, "{s}</footer>", .{master_config.github});
+    const footer_end: []const u8 = try std.fmt.allocPrint(allocator, "{s}</footer> </div>", .{master_config.github});
     try myString.concat(footer_end);
+    //script
+    try jsString.concat("}\n");
+    try jsString.concat(idxJs.script_end);
+    try myString.concat(jsString.str());
     try myString.concat(idxHtml.html_end);
     
     // create index.html
-    try createHtmlFile(home, "dist", &myString);
+    try createFile(home, "dist", &myString,"index.html");
     // 遍历生成html file
     for (master_config.issues) |item| {
         for (article_config.articles) |link| {

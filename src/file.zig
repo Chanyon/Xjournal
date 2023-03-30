@@ -58,18 +58,18 @@ pub fn createNewDir(dir_name: []const u8) !void {
     _ = try issue_toml.write(issue_toml_content);
 }
 
-pub fn createHtmlFile(cwd: std.fs.Dir, dir_path: []const u8, content: *String) !void {
+pub fn createHtmlAndJsFile(cwd: std.fs.Dir, dir_path: []const u8, content: *String, file_name: []const u8) !void {
     var dir: std.fs.Dir = undefined;
     cwd.makeDir(dir_path) catch {
         // std.log.info("{s} already exist.", .{dir_path});
         dir = try cwd.openDir(dir_path, .{});
         // TODO: 打开文件并写入, can't create file
-        const html_file = try dir.createFile("index.html", .{});
+        const html_file = try dir.createFile(file_name, .{});
         defer html_file.close();
         _ = try html_file.write(content.*.str());
     };
     dir = try cwd.openDir(dir_path, .{});
-    const html_file = try dir.createFile("index.html", .{});
+    const html_file = try dir.createFile(file_name, .{});
     defer html_file.close();
     _ = try html_file.write(content.*.str());
 }
@@ -119,6 +119,20 @@ pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8) !v
     const html_file = try sub_dir.createFile(html, .{});
     defer html_file.close();
     try html_file.writeAll(s.out.items);
+}
+
+pub fn spiltTwoStep(str: []const u8, delimiter: []const u8) []const u8 {
+    // content/issue-1
+    var dir_name = std.mem.split(u8, str, delimiter);
+    var dir_name_it = dir_name.next().?;
+    dir_name_it = dir_name.next().?;
+    return dir_name_it;
+}
+
+pub fn splitFisrt(str: []const u8, delimiter: []const u8) []const u8 {
+    var html_file_name = std.mem.split(u8, str, delimiter);
+    const html_file_name_it = html_file_name.first();
+    return html_file_name_it;
 }
 
 pub fn getFilename(al: std.mem.Allocator, cwd: std.fs.Dir, path: []const u8) !?[]const u8 {
