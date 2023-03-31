@@ -7,7 +7,7 @@ const flag = yazap.flag;
 const App = yazap.App;
 const file = @import("file.zig");
 const build = @import("build.zig").build;
-
+const server = @import("server.zig").createServe;
 pub fn main() !void {
     try runCmd();
 }
