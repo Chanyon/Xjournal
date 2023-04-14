@@ -1,6 +1,6 @@
 [submodule "progdoc"]
 	path = progdoc
-	url = https://github.com/sxwangzhiwen/progdoc.git
+	url = https://github.com/Chanyon/progdoc/tree/fix-change-dev
 [submodule "zap"]
 	path = zap
 	url = https://github.com/zigzap/zap.git
