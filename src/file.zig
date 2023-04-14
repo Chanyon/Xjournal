@@ -2,6 +2,7 @@ const std = @import("std");
 const prog = @import("progdoc");
 const String = @import("zig_string").String;
 const fs = std.fs;
+const indexHtml = @import("./front/index.zig");
 
 pub fn createNewDir(dir_name: []const u8) !void {
     var home = fs.cwd();
@@ -74,7 +75,7 @@ pub fn createHtmlAndJsFile(cwd: std.fs.Dir, dir_path: []const u8, content: *Stri
     _ = try html_file.write(content.*.str());
 }
 
-pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8) !void {
+pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8, html_segment_str: []const u8, footer_end: []const u8) !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     var al = arena.allocator();
@@ -91,7 +92,7 @@ pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8) !v
 
     //解析生成html
     var s = try prog.@"Tprogdoc格式转换状态机".createStatusMachine(al, pd_file);
-    try s.parseProgdoc();
+    try s.parseProgdoc2();
     defer s.@"Fn清空状态机"();
     //create dir and file
     // content/issue-1
@@ -105,7 +106,7 @@ pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8) !v
     const html = try std.fmt.allocPrint(al, "{s}.html", .{html_file_name_it});
     //open dir
     const dist_dir = try home.openDir("dist", .{});
-    
+
     dist_dir.makeDir(dir_name_it) catch {
         //todo ^
         const sub_dir = try dist_dir.openDir(dir_name_it, .{});
@@ -118,7 +119,13 @@ pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8) !v
 
     const html_file = try sub_dir.createFile(html, .{});
     defer html_file.close();
+    try html_file.writeAll(html_segment_str);
+    try html_file.writeAll(indexHtml.main_article_start);
     try html_file.writeAll(s.out.items);
+    try html_file.writeAll(indexHtml.main_article_end);
+    try html_file.writeAll(indexHtml.footer_start);
+    try html_file.writeAll(footer_end);
+    try html_file.writeAll(indexHtml.html_end);
 }
 
 pub fn spiltTwoStep(str: []const u8, delimiter: []const u8) []const u8 {

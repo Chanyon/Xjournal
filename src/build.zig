@@ -42,6 +42,8 @@ pub fn build() !void {
         try myString.concat(nav_link);
     }
     try myString.concat(idxHtml.header_end);
+    var html_str = try myString.clone();
+    defer html_str.deinit();
 
     var home = std.fs.cwd();
     defer home.close();
@@ -62,19 +64,16 @@ pub fn build() !void {
             const section_start = "<section class=\"h-auto border-b-2 border-black border-double\">";
             try myString.concat(section_start);
 
-            const h3: []const u8 = try std.fmt.allocPrint(allocator, 
-            "<h3 class=\"h-16 p-2 text-center text-2xl\">{s}</h3> <ul class=\"divide-y divide-black divide-dashed\">", 
-            .{item.title});
+            const h3: []const u8 = try std.fmt.allocPrint(allocator, "<h5 class=\"h-16 p-2 text-center text-2xl\">{s}</h5> <ul class=\"divide-y divide-black divide-dashed\">", .{item.title});
 
             try myString.concat(h3);
             // TODO: article link
             const dir_path = splitTwoStep(item.path, "/");
             for (article_config.articles) |link| {
                 const file_name = splitFirst(link.file, ".");
-                const li_link: []const u8 = try std.fmt.allocPrint(allocator, 
-                "<li class=\"h-16 p-2\"><a data-href=\"/{s}/{s}\">{s}</a></li>", .{dir_path,file_name,link.title});
+                const li_link: []const u8 = try std.fmt.allocPrint(allocator, "<li class=\"h-16 p-2\"><a data-href=\"/{s}/{s}\">{s}</a></li>", .{ dir_path, file_name, link.title });
                 try myString.concat(li_link);
-                const obj_key_val = try std.fmt.allocPrint(allocator, "\n\"/{s}/{s}\":\"./{s}/{s}.html\",\n", .{dir_path,file_name,dir_path,file_name});
+                const obj_key_val = try std.fmt.allocPrint(allocator, "\n\"/{s}/{s}\":\"./{s}/{s}.html\",\n", .{ dir_path, file_name, dir_path, file_name });
                 try jsString.concat(obj_key_val);
             }
 
@@ -94,14 +93,14 @@ pub fn build() !void {
     try jsString.concat(idxJs.script_end);
     try myString.concat(jsString.str());
     try myString.concat(idxHtml.html_end);
-    
+
     // create index.html
-    try createFile(home, "dist", &myString,"index.html");
+    try createFile(home, "dist", &myString, "index.html");
     // 遍历生成html file
     for (master_config.issues) |item| {
         for (article_config.articles) |link| {
-            try genHtml(home, item.path, link.file);
-            std.debug.print("{s} {s} => html\n", .{item.path, link.file});
+            try genHtml(home, item.path, link.file, html_str.str(), footer_end);
+            std.debug.print("{s} {s} => html\n", .{ item.path, link.file });
         }
     }
 }
