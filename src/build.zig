@@ -99,7 +99,7 @@ pub fn build() !void {
     // 遍历生成html file
     for (master_config.issues) |item| {
         for (article_config.articles) |link| {
-            try genHtml(home, item.path, link.file, html_str.str(), footer_end);
+            try genHtml(home, item.path, link.file, link.title, html_str.str(), footer_end);
             std.debug.print("{s} {s} => html\n", .{ item.path, link.file });
         }
     }

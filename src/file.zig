@@ -75,7 +75,9 @@ pub fn createHtmlAndJsFile(cwd: std.fs.Dir, dir_path: []const u8, content: *Stri
     _ = try html_file.write(content.*.str());
 }
 
-pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8, html_segment_str: []const u8, footer_end: []const u8) !void {
+pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8, title: []const u8, html_segment_str: []const u8, footer_end: []const u8) !void {
+    _ = footer_end;
+    _ = html_segment_str;
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     var al = arena.allocator();
@@ -119,13 +121,17 @@ pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8, ht
 
     const html_file = try sub_dir.createFile(html, .{});
     defer html_file.close();
-    try html_file.writeAll(html_segment_str);
+    // try html_file.writeAll(html_segment_str);
     try html_file.writeAll(indexHtml.main_article_start);
+    {
+        const title_segment = try std.fmt.allocPrint(al, "<div><h4 style=\"text-align: center\">{s}</h4></div></div>", .{title});
+        try html_file.writeAll(title_segment);
+    }
     try html_file.writeAll(s.out.items);
     try html_file.writeAll(indexHtml.main_article_end);
-    try html_file.writeAll(indexHtml.footer_start);
-    try html_file.writeAll(footer_end);
-    try html_file.writeAll(indexHtml.html_end);
+    // try html_file.writeAll(indexHtml.footer_start);
+    // try html_file.writeAll(footer_end);
+    // try html_file.writeAll(indexHtml.html_end);
 }
 
 pub fn spiltTwoStep(str: []const u8, delimiter: []const u8) []const u8 {
