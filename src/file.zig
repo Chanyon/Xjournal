@@ -10,21 +10,27 @@ pub fn createNewDir(dir_name: []const u8) !void {
 
     home.makeDir(dir_name) catch {
         std.log.info("{s} already exist.", .{dir_name});
+        return;
     };
-    const dir = try home.openDir(dir_name, .{});
+    var dir = try home.openDir(dir_name, .{});
+    defer dir.close();
+
     const toml_file = try dir.createFile("xj.toml", .{});
     defer toml_file.close();
     const toml_content =
         \\blog_name = "StaticBlogName"
         \\github = "https://github_path"
+        \\[template]
+        \\about = "content/template/about.pd"
+        \\footer = "content/template/footer.pd"
         \\[[menus]]
-        \\name = "About" 
+        \\name = "Home" 
+        \\url = "/home"
+        \\[[menus]]
+        \\name = "About"
         \\url = "/about"
-        \\[[menus]]
-        \\name = "Blog"
-        \\url = "/blog"
         \\[[issues]]
-        \\title = "js相关"
+        \\title = "test"
         \\path = "content/issue-1"
     ;
 
@@ -51,7 +57,7 @@ pub fn createNewDir(dir_name: []const u8) !void {
         \\author = ""
         \\pub_date = "2023-02-17"
         \\[[articles]]
-        \\file = "2-first.pd"
+        \\file = "2-second.pd"
         \\title = "second article"
         \\author = ""
         \\pub_date = "2023-02-18"
@@ -59,25 +65,26 @@ pub fn createNewDir(dir_name: []const u8) !void {
     _ = try issue_toml.write(issue_toml_content);
 }
 
-pub fn createHtmlAndJsFile(cwd: std.fs.Dir, dir_path: []const u8, content: *String, file_name: []const u8) !void {
+pub fn createHtmlAndJsFile(cwd: std.fs.Dir, dir_path: []const u8, content: []const u8, file_name: []const u8) !void {
     var dir: std.fs.Dir = undefined;
     cwd.makeDir(dir_path) catch {
         // std.log.info("{s} already exist.", .{dir_path});
         dir = try cwd.openDir(dir_path, .{});
+        defer dir.close();
         // TODO: 打开文件并写入, can't create file
         const html_file = try dir.createFile(file_name, .{});
         defer html_file.close();
-        _ = try html_file.write(content.*.str());
+        try html_file.writeAll(content);
     };
     dir = try cwd.openDir(dir_path, .{});
+    defer dir.close();
+
     const html_file = try dir.createFile(file_name, .{});
     defer html_file.close();
-    _ = try html_file.write(content.*.str());
+    try html_file.writeAll(content);
 }
 
-pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8, title: []const u8, html_segment_str: []const u8, footer_end: []const u8) !void {
-    _ = footer_end;
-    _ = html_segment_str;
+pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8, title: []const u8) !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     var al = arena.allocator();
@@ -132,6 +139,28 @@ pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8, ti
     // try html_file.writeAll(indexHtml.footer_start);
     // try html_file.writeAll(footer_end);
     // try html_file.writeAll(indexHtml.html_end);
+}
+
+pub fn genTemplateHtml(al: std.mem.Allocator, home: std.fs.Dir, path: []const u8) !?prog.@"Tprogdoc格式转换状态机" {
+    var dir_name = std.mem.split(u8, path, "/");
+    const dir_path = try std.fmt.allocPrint(al, "{s}/{s}", .{ dir_name.next().?, dir_name.next().? });
+
+    var dir = home.openDir(dir_path, .{}) catch {
+        std.debug.print("open dir fail\n", .{});
+        return null;
+    };
+    defer dir.close();
+
+    //read file
+    const file_name = dir_name.next().?;
+    const pd_file = dir.readFileAlloc(al, file_name, 1024 * 1024) catch {
+        std.log.info("file not found: {s}\n", .{file_name});
+        return null;
+    };
+    var s = try prog.@"Tprogdoc格式转换状态机".createStatusMachine(al, pd_file);
+    try s.parseProgdoc2();
+
+    return s;
 }
 
 pub fn spiltTwoStep(str: []const u8, delimiter: []const u8) []const u8 {
