@@ -101,7 +101,7 @@ pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8, ti
 
     //解析生成html
     var s = try prog.@"Tprogdoc格式转换状态机".createStatusMachine(al, pd_file);
-    try s.parseProgdoc2();
+    try s.parseProgdocNotStyle();
     defer s.@"Fn清空状态机"();
     //create dir and file
     // content/issue-1
@@ -158,7 +158,7 @@ pub fn genTemplateHtml(al: std.mem.Allocator, home: std.fs.Dir, path: []const u8
         return null;
     };
     var s = try prog.@"Tprogdoc格式转换状态机".createStatusMachine(al, pd_file);
-    try s.parseProgdoc2();
+    try s.parseProgdocNotStyle();
 
     return s;
 }
