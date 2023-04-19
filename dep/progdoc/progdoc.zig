@@ -1618,6 +1618,13 @@ pub const @"Tprogdoc格式转换状态机" = struct {
         }
         try self.@"Fn文件结尾状态处理"();
     }
+    /// 不生成样式表
+    pub fn parseProgdocNotStyle(self: *@"Tprogdoc格式转换状态机") !void {
+        while (!self.@"is输入尾部") {
+            try self.parseline();
+        }
+        try self.@"Fn文件结尾状态处理"();
+    }
 };
 
 // 列表栈操作，列表栈长度固定为7，一方面占用内存极小不用再省了，一方面7层级列表足够用了。层级太多需要整理思路重新写。
