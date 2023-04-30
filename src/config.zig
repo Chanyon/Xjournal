@@ -4,6 +4,7 @@ pub const MasterConfig = struct {
     menus: []const Menu,
     issues: []const Issue,
     template: *Template,
+    output: []const u8,
 };
 
 const Menu = struct {
