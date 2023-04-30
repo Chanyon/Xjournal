@@ -2,6 +2,7 @@ const std = @import("std");
 const prog = @import("progdoc");
 const String = @import("zig_string").String;
 const fs = std.fs;
+const MasterConfig = @import("./config.zig").MasterConfig;
 const indexHtml = @import("./front/index.zig");
 
 pub fn createNewDir(dir_name: []const u8) !void {
@@ -84,7 +85,7 @@ pub fn createHtmlAndJsFile(cwd: std.fs.Dir, dir_path: []const u8, content: []con
     try html_file.writeAll(content);
 }
 
-pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8, title: []const u8) !void {
+pub fn pd2Html(home: std.fs.Dir, config: *MasterConfig, open_dir: []const u8, file_name: []const u8, title: []const u8) !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     var al = arena.allocator();
@@ -114,7 +115,7 @@ pub fn pd2Html(home: std.fs.Dir, open_dir: []const u8, file_name: []const u8, ti
     const html_file_name_it = html_file_name.first();
     const html = try std.fmt.allocPrint(al, "{s}.html", .{html_file_name_it});
     //open dir
-    const dist_dir = try home.openDir("dist", .{});
+    const dist_dir = try home.openDir(config.*.output, .{});
 
     dist_dir.makeDir(dir_name_it) catch {
         //todo ^

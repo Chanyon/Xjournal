@@ -73,10 +73,15 @@ pub fn build() !void {
             const dir_path = splitTwoStep(item.path, "/");
             for (article_config.articles) |link| {
                 const file_name = splitFirst(link.file, ".");
-                const li_link: []const u8 = try std.fmt.allocPrint(allocator, "<li class=\"h-16 p-2\"><a data-href=\"/{s}/{s}\">{s}</a></li>", .{ dir_path, file_name, link.title });
+                const li_link: []const u8 = try std.fmt.allocPrint(allocator, "<li class=\"h-16 p-2\"><a data-href=\"/{s}/{s}\">{s}</a><p class=\"pub-date\">{s}</p></li>", .{ dir_path, file_name, link.title, link.pub_date });
                 try myString.concat(li_link);
+
                 const obj_key_val = try std.fmt.allocPrint(allocator, "\n\"/{s}/{s}\":\"./{s}/{s}.html\",\n", .{ dir_path, file_name, dir_path, file_name });
                 try jsString.concat(obj_key_val);
+
+                std.debug.print("{s} {s} => html\n", .{ item.path, link.file });
+                // 遍历生成html file
+                try genHtml(home, &master_config, item.path, link.file, link.title);
             }
 
             const section_end = "</ul></section>";
@@ -99,17 +104,10 @@ pub fn build() !void {
     try myString.concat(idxHtml.html_end);
 
     // create index.html
-    try createFile(home, "dist", myString.str(), "index.html");
-    // 遍历生成html file
-    for (master_config.issues) |item| {
-        for (article_config.articles) |link| {
-            try genHtml(home, item.path, link.file, link.title);
-            std.debug.print("{s} {s} => html\n", .{ item.path, link.file });
-        }
-    }
+    try createFile(home, master_config.output, myString.str(), "index.html");
 
     //about.pd => about.html
     var about = try template2Html(allocator, home, master_config.template.*.about);
     defer about.?.@"Fn清空状态机"();
-    try createFile(home, "dist", about.?.out.items, "about.html");
+    try createFile(home, master_config.output, about.?.out.items, "about.html");
 }
