@@ -1,15 +1,15 @@
-[submodule "progdoc"]
-	path = progdoc
+[submodule "dep/progdoc"]
+	path = dep/progdoc
 	url = https://github.com/Chanyon/progdoc/tree/fix-change-dev
-[submodule "zap"]
-	path = zap
+[submodule "dep/zap"]
+	path = dep/zap
 	url = https://github.com/zigzap/zap.git
-[submodule "yazap"]
-	path = yazap
+[submodule "dep/yazap"]
+	path = dep/yazap
 	url = https://github.com/PrajwalCH/yazap.git
-[submodule "zig-string"]
-	path = zig-string
+[submodule "dep/zig-string"]
+	path = dep/zig-string
 	url = https://github.com/JakubSzark/zig-string.git
-[submodule "zig-toml"]
-	path = zig-toml
+[submodule "dep/zig-toml"]
+	path = dep/zig-toml
 	url = https://github.com/sam701/zig-toml.git
