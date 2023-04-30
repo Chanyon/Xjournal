@@ -12,21 +12,37 @@ pub const head_end =
     \\<link rel="stylesheet" href="https://cdn.simplecss.org/simple.css">
     \\<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/holiday.css@0.11.0" /> -->
     \\<style>
+    \\ul li {
+    \\  font-size: 20px;
+    \\}
     \\  a:hover{
     \\    cursor: pointer;
     \\  }
     \\  #btn{
-    \\  display: none;
-    \\}
+    \\      display: none;
+    \\  }
+    \\  .pub-date {
+    \\      font-size: 14px;  
+    \\  }
+    \\  @media screen and (min-width: 768px) {
+    \\    body {
+    \\      display: flex;
+    \\      flex-direction: column;
+    \\     justify-content: center;
+    \\     align-items: center;
+    \\   }
+    \\   #content article {
+    \\    width: 1024px;
+    \\  }
+    \\  .container {
+    \\    width: 1024px;
+    \\  }
+    \\ }
     \\</style>
     \\    <style>
     \\:root{
     \\    --nav-width: 24em;
     \\    --nav-margin-l: 1em;
-    \\}
-    \\body{
-    \\    margin: 0;
-    \\    line-height: 1.5;
     \\}
     \\#contents {
     \\    max-width: 60em;
