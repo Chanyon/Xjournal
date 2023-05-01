@@ -21,6 +21,7 @@ pub fn createNewDir(dir_name: []const u8) !void {
     const toml_content =
         \\blog_name = "StaticBlogName"
         \\github = "https://github_path"
+        \\output = "dist"
         \\[template]
         \\about = "content/template/about.pd"
         \\footer = "content/template/footer.pd"
