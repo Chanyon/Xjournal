@@ -1610,14 +1610,8 @@ pub const @"Tprogdoc格式转换状态机" = struct {
         try self.@"Fn文件结尾状态处理"();
         try self.@"Fn文件尾"();
     }
-
-    pub fn parseProgdoc2(self: *@"Tprogdoc格式转换状态机") !void {
-        try self.setStyle();
-        while (!self.@"is输入尾部") {
-            try self.parseline();
-        }
-        try self.@"Fn文件结尾状态处理"();
-    }
+ 
+    /// 不输出html head and end
     /// 不生成样式表
     pub fn parseProgdocNotStyle(self: *@"Tprogdoc格式转换状态机") !void {
         while (!self.@"is输入尾部") {
