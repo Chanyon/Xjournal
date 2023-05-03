@@ -24,7 +24,7 @@ pub const head_end =
     \\  .pub-date {
     \\      font-size: 14px;  
     \\  }
-    \\  @media screen and (min-width: 768px) {
+    \\  @media screen and (min-width: 1024px) {
     \\    body {
     \\      display: flex;
     \\      flex-direction: column;
@@ -37,7 +37,14 @@ pub const head_end =
     \\  .container {
     \\    width: 1024px;
     \\  }
-    \\ }
+    \\}
+    \\h1,h2,h3,h4,h5,h6{margin: 15px 0;}
+    \\h1 {font-size: 24px;}
+    \\h2 {font-size: 22px;}
+    \\h3 {font-size: 20px;}
+    \\h4 {font-size: 18px;}
+    \\h5 {font-size: 16px;}
+    \\h6 {font-size: 14px;}
     \\</style>
     \\    <style>
     \\:root{
