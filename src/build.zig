@@ -44,8 +44,6 @@ pub fn build() !void {
         try myString.concat(nav_link);
     }
     try myString.concat(idxHtml.header_end);
-    var html_str = try myString.clone();
-    defer html_str.deinit();
 
     var home = std.fs.cwd();
     defer home.close();

@@ -22,6 +22,7 @@ pub fn createNewDir(dir_name: []const u8) !void {
         \\blog_name = "StaticBlogName"
         \\github = "https://github_path"
         \\output = "dist"
+        \\is_headline = true
         \\[template]
         \\about = "content/template/about.pd"
         \\footer = "content/template/footer.pd"
@@ -135,6 +136,13 @@ pub fn pd2Html(home: std.fs.Dir, config: *MasterConfig, open_dir: []const u8, fi
     {
         const title_segment = try std.fmt.allocPrint(al, "<div><h4 style=\"text-align: center\">{s}</h4></div></div>", .{title});
         try html_file.writeAll(title_segment);
+    }
+    {
+        if (config.*.is_headline) {
+            // try html_file.writeAll("<ul>");
+            try html_file.writeAll(s.@"目录".items);
+            try html_file.writeAll("</ul>");
+        }
     }
     try html_file.writeAll(s.out.items);
     try html_file.writeAll(indexHtml.main_article_end);

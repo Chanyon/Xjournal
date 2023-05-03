@@ -5,6 +5,7 @@ pub const MasterConfig = struct {
     issues: []const Issue,
     template: *Template,
     output: []const u8,
+    is_headline: bool = true,
 };
 
 const Menu = struct {
