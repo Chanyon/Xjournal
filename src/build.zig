@@ -92,8 +92,10 @@ pub fn build() !void {
     try myString.concat(idxHtml.main_end);
     try myString.concat(idxHtml.footer_start);
     var footer = try template2Html(allocator, home, master_config.template.*.footer);
-    defer footer.?.@"Fn清空状态机"();
-    const footer_end: []const u8 = try std.fmt.allocPrint(allocator, "{s}</footer> </div>", .{footer.?.out.items});
+    defer footer.?.deinit();
+    var str = try std.mem.join(allocator, "", footer.?.out.items);
+    var res = str[0..str.len];
+    const footer_end: []const u8 = try std.fmt.allocPrint(allocator, "{s}</footer> </div>", .{res});
     try myString.concat(footer_end);
     //script
     try jsString.concat("}\n");
@@ -106,6 +108,9 @@ pub fn build() !void {
 
     //about.pd => about.html
     var about = try template2Html(allocator, home, master_config.template.*.about);
-    defer about.?.@"Fn清空状态机"();
-    try createFile(home, master_config.output, about.?.out.items, "about.html");
+    defer about.?.deinit();
+    str = try std.mem.join(allocator, "", about.?.out.items);
+    res = str[0..str.len];
+
+    try createFile(home, master_config.output, res, "about.html");
 }

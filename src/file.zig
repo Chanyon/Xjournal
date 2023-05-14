@@ -1,5 +1,5 @@
 const std = @import("std");
-const prog = @import("progdoc");
+const markdown = @import("minimd-zig");
 const String = @import("zig_string").String;
 const fs = std.fs;
 const MasterConfig = @import("./config.zig").MasterConfig;
@@ -22,10 +22,10 @@ pub fn createNewDir(dir_name: []const u8) !void {
         \\blog_name = "StaticBlogName"
         \\github = "https://github_path"
         \\output = "dist"
-        \\is_headline = true
+        \\is_headline = false
         \\[template]
-        \\about = "content/template/about.pd"
-        \\footer = "content/template/footer.pd"
+        \\about = "content/template/about.md"
+        \\footer = "content/template/footer.md"
         \\[[menus]]
         \\name = "Home" 
         \\url = "/home"
@@ -44,23 +44,23 @@ pub fn createNewDir(dir_name: []const u8) !void {
     };
     const sub_dir = try dir.openDir("issue-1", .{});
 
-    const outfile = try sub_dir.createFile("1-first.pd", .{});
+    const outfile = try sub_dir.createFile("1-first.md", .{});
     defer outfile.close();
     _ = try outfile.write("hello, world.");
 
-    const outfile2 = try sub_dir.createFile("2-second.pd", .{});
+    const outfile2 = try sub_dir.createFile("2-second.md", .{});
     defer outfile2.close();
     _ = try outfile2.write("hello, world 2.");
     const issue_toml = try sub_dir.createFile("xj.toml", .{});
     defer issue_toml.close();
     const issue_toml_content =
         \\[[articles]]
-        \\file = "1-first.pd"
+        \\file = "1-first.md"
         \\title = "first article"
         \\author = ""
         \\pub_date = "2023-02-17"
         \\[[articles]]
-        \\file = "2-second.pd"
+        \\file = "2-second.md"
         \\title = "second article"
         \\author = ""
         \\pub_date = "2023-02-18"
@@ -97,22 +97,21 @@ pub fn pd2Html(home: std.fs.Dir, config: *MasterConfig, open_dir: []const u8, fi
         return;
     };
     //读取文件
-    const pd_file = dir.readFileAlloc(al, file_name, 1024 * 1024) catch {
+    const md_file = dir.readFileAlloc(al, file_name, 1024 * 1024) catch {
         std.log.info("file not found\n", .{});
         return;
     };
 
     //解析生成html
-    var s = try prog.@"Tprogdoc格式转换状态机".createStatusMachine(al, pd_file);
-    try s.parseProgdocNotStyle();
-    defer s.@"Fn清空状态机"();
+    var parse = try markdown.parser(al, md_file);
+    defer parse.deinit();
     //create dir and file
     // content/issue-1
     var dir_name = std.mem.split(u8, open_dir, "/");
     var dir_name_it = dir_name.next().?;
     dir_name_it = dir_name.next().?;
 
-    // example.pd
+    // example.pd / .md
     var html_file_name = std.mem.split(u8, file_name, ".");
     const html_file_name_it = html_file_name.first();
     const html = try std.fmt.allocPrint(al, "{s}.html", .{html_file_name_it});
@@ -125,7 +124,9 @@ pub fn pd2Html(home: std.fs.Dir, config: *MasterConfig, open_dir: []const u8, fi
 
         const html_file = try sub_dir.createFile(html, .{});
         defer html_file.close();
-        try html_file.writeAll(s.out.items);
+        const str = try std.mem.join(al, "", parse.out.items);
+        const res = str[0..str.len];
+        try html_file.writeAll(res);
     };
     const sub_dir = try dist_dir.openDir(dir_name_it, .{});
 
@@ -138,20 +139,22 @@ pub fn pd2Html(home: std.fs.Dir, config: *MasterConfig, open_dir: []const u8, fi
         try html_file.writeAll(title_segment);
     }
     {
-        if (config.*.is_headline) {
-            // try html_file.writeAll("<ul>");
-            try html_file.writeAll(s.@"目录".items);
-            try html_file.writeAll("</ul>");
-        }
+        // if (config.*.is_headline) {
+        //     // try html_file.writeAll("<ul>");
+        //     try html_file.writeAll(s.@"目录".items);
+        //     try html_file.writeAll("</ul>");
+        // }
     }
-    try html_file.writeAll(s.out.items);
+    const str = try std.mem.join(al, "", parse.out.items);
+    const res = str[0..str.len];
+    try html_file.writeAll(res);
     try html_file.writeAll(indexHtml.main_article_end);
     // try html_file.writeAll(indexHtml.footer_start);
     // try html_file.writeAll(footer_end);
     // try html_file.writeAll(indexHtml.html_end);
 }
 
-pub fn genTemplateHtml(al: std.mem.Allocator, home: std.fs.Dir, path: []const u8) !?prog.@"Tprogdoc格式转换状态机" {
+pub fn genTemplateHtml(al: std.mem.Allocator, home: std.fs.Dir, path: []const u8) !?markdown.Parser {
     var dir_name = std.mem.split(u8, path, "/");
     const dir_path = try std.fmt.allocPrint(al, "{s}/{s}", .{ dir_name.next().?, dir_name.next().? });
 
@@ -163,14 +166,12 @@ pub fn genTemplateHtml(al: std.mem.Allocator, home: std.fs.Dir, path: []const u8
 
     //read file
     const file_name = dir_name.next().?;
-    const pd_file = dir.readFileAlloc(al, file_name, 1024 * 1024) catch {
+    const md_file = dir.readFileAlloc(al, file_name, 1024 * 1024) catch {
         std.log.info("file not found: {s}\n", .{file_name});
         return null;
     };
-    var s = try prog.@"Tprogdoc格式转换状态机".createStatusMachine(al, pd_file);
-    try s.parseProgdocNotStyle();
-
-    return s;
+    var parse = try markdown.parser(al, md_file);
+    return parse;
 }
 
 pub fn spiltTwoStep(str: []const u8, delimiter: []const u8) []const u8 {

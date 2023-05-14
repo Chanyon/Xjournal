@@ -25,6 +25,11 @@ const pkgs = struct {
         .source = .{ .path = "dep/zig-toml/src/main.zig" },
         .dependencies = &[_]std.build.Pkg{},
     };
+    const minimd = std.build.Pkg{
+        .name = "minimd-zig",
+        .source = .{ .path = "dep/minimd-zig/src/lib.zig" },
+        .dependencies = &[_]std.build.Pkg{},
+    };
 };
 
 pub fn build(b: *std.build.Builder) !void {
@@ -57,6 +62,7 @@ pub fn build(b: *std.build.Builder) !void {
     exe.addPackage(pkgs.yazap);
     exe.addPackage(pkgs.zigString);
     exe.addPackage(pkgs.zigToml);
+    exe.addPackage(pkgs.minimd);
     exe.install();
 
     const run_cmd = exe.run();
