@@ -58,7 +58,6 @@ pub fn build(b: *std.build.Builder) !void {
     exe.setTarget(target);
     exe.setBuildMode(mode);
 
-    exe.addPackage(pkgs.prog);
     exe.addPackage(pkgs.yazap);
     exe.addPackage(pkgs.zigString);
     exe.addPackage(pkgs.zigToml);
