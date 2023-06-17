@@ -20,28 +20,28 @@ pub const script_end =
     \\   link.addEventListener("click", async e => {
     \\       e.preventDefault();
     \\         const url = e.target.dataset["href"];
-    \\   //window.history.pushState({}, "", url);
     \\     if(e.target.tagName === "A") {
     \\      const html = await handleLocation(url);
     \\      if (url === "/home") {
     \\       window.location.reload();
+    \\       return;
     \\    }
-    \\    if (url !== "/home" || url !== "/about") {
+    \\    if (url !== "/home") {
     \\       btn.style.display = "block";
     \\   }
     \\   content.innerHTML = html;
     \\  }
     \\  });
     \\});
-    \\    window.onload = function() {
-    \\  const localData = {
-    \\    contents: [],
-    \\  };
-    \\  sectionLiAList.forEach(sec => {
-    \\    localData.contents.push(sec.innerHTML);
-    \\  });
-    \\   window.localStorage.setItem("bodyContent",JSON.stringify(localData));
-    \\ };
+    \\ //   window.onload = function() {
+    \\ // const localData = {
+    \\ //   contents: [],
+    \\ // };
+    \\ // sectionLiAList.forEach(sec => {
+    \\ //   localData.contents.push(sec.innerHTML);
+    \\ // });
+    \\ //  window.localStorage.setItem("bodyContent",JSON.stringify(localData));
+    \\ //};
     \\ btn.addEventListener("click",e => {
     \\ btn.style.display = "none";
     \\ content.innerHTML = "";
