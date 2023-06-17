@@ -8,6 +8,9 @@
 - ~~./zig-out/bin/xj.exe serve~~TODO
 ### progdoc格式
 - https://sxwangzhiwen.github.io/progdoc/progdoc.html
+
+### md格式
+- [https://github.com/Chanyon/Xjournal/tree/md-dev](https://github.com/Chanyon/Xjournal/tree/md-dev)
 ---
 ### blog效果
 ![blog图](./blog.JPG)
