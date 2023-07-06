@@ -208,7 +208,7 @@ pub fn getFilename(al: std.mem.Allocator, cwd: std.fs.Dir, path: []const u8) !?[
     var dirit = dir.iterate();
     while (try dirit.next()) |entry| {
         // check for zero-length files and unopenable files
-        if (entry.kind == .File) {
+        if (entry.kind == .file) {
             const f: std.fs.File = dir.dir.openFile(entry.name, .{}) catch {
                 return null;
             };

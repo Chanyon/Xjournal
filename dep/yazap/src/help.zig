@@ -1,10 +1,8 @@
 const std = @import("std");
-const flag = @import("flag.zig");
 const Command = @import("Command.zig");
-const ArgsContext = @import("args_context.zig").ArgsContext;
+const ArgMatches = @import("arg_matches.zig").ArgMatches;
 
 const mem = std.mem;
-const Braces = std.meta.Tuple(&[2]type{ u8, u8 });
 
 /// Help message writer
 ///
@@ -40,7 +38,7 @@ pub const Help = struct {
             self.parents = std.ArrayList([]const u8).init(allocator);
             try self.setCommandAndItsParents(root_cmd, subcmd);
         }
-        self.include_args = (self.cmd.countArgs() >= 1);
+        self.include_args = (self.cmd.countPositionalArgs() >= 1);
         self.include_subcmds = (self.cmd.countSubcommands() >= 1);
         self.include_flags = (self.cmd.countOptions() >= 1);
         return self;
@@ -90,11 +88,11 @@ pub const Help = struct {
         try writer.print("{s} ", .{self.cmd.name});
 
         if (self.include_args) {
-            const braces = getBraces(self.cmd.isSettingSet(.positional_arg_required));
+            const braces = getBraces(self.cmd.hasProperty(.positional_arg_required));
 
-            for (self.cmd.args.items) |arg| {
+            for (self.cmd.positional_args.items) |arg| {
                 try writer.print("{c}{s}", .{ braces[0], arg.name });
-                if (arg.isSettingSet(.takes_multiple_values))
+                if (arg.hasProperty(.takes_multiple_values))
                     try writer.writeAll("...");
                 try writer.print("{c} ", .{braces[1]});
             }
@@ -103,14 +101,14 @@ pub const Help = struct {
         if (self.include_flags)
             try writer.writeAll("[OPTIONS] ");
         if (self.include_subcmds) {
-            const braces = getBraces(self.cmd.isSettingSet(.subcommand_required));
+            const braces = getBraces(self.cmd.hasProperty(.subcommand_required));
             try writer.print("{c}COMMAND{c}", .{ braces[0], braces[1] });
         }
         try writeNewLine(writer);
         try writeNewLine(writer);
     }
 
-    fn getBraces(required: bool) Braces {
+    fn getBraces(required: bool) struct { u8, u8 } {
         return if (required) .{ '<', '>' } else .{ '[', ']' };
     }
 
@@ -122,7 +120,7 @@ pub const Help = struct {
     }
 
     fn writeCommands(self: *Help, writer: anytype) !void {
-        if (!(self.include_subcmds)) return;
+        if (!self.include_subcmds) return;
 
         try writer.writeAll("Commands:");
         try writeNewLine(writer);
@@ -154,12 +152,12 @@ pub const Help = struct {
             const padding: usize = if (option.short_name == null) 6 else 0;
             try writer.print(" {[1]s:>[0]}{[2]s} ", .{ padding, "--", long_name });
 
-            if (option.isSettingSet(.takes_value)) {
+            if (option.hasProperty(.takes_value)) {
                 // TODO: Add new `Arg.placeholderName()` to display proper placeholder
-                if (option.allowed_values) |values| {
+                if (option.valid_values) |values| {
                     try writer.writeByte('{');
 
-                    for (values) |value, idx| {
+                    for (values, 0..) |value, idx| {
                         try writer.print("{s}", .{value});
 
                         // Only print '|' till second last option
@@ -181,6 +179,7 @@ pub const Help = struct {
             try writer.writeAll("\n");
         }
         try writer.writeAll(" -h, --help\n\tPrint help and exit");
+        try writeNewLine(writer);
     }
 
     fn writeFooter(self: *Help, writer: anytype) !void {
@@ -199,29 +198,19 @@ pub const Help = struct {
     }
 };
 
-pub fn enableFor(cmd: *Command) void {
-    // zig fmt: off
-    if (cmd.countArgs() >= 1
-        or cmd.countOptions() >= 1
-        or cmd.countSubcommands() >= 1) {
-        // zig fmt: on
-        cmd.setSetting(.enable_help);
-    }
-}
-
 /// Returns which subcommand is active on command line with `-h` or `--help` option
 /// null if none of the subcommands were present
-pub fn findSubcommand(root_cmd: *const Command, ctx: *ArgsContext) ?[]const u8 {
-    if ((ctx.subcommand != null) and (ctx.subcommand.?.ctx != null)) {
-        const subcmd_name = ctx.subcommand.?.name;
-        const subcmd_ctx = &ctx.subcommand.?.ctx.?;
+pub fn findSubcommand(root_cmd: *const Command, matches: *ArgMatches) ?[]const u8 {
+    if ((matches.subcommand != null) and (matches.subcommand.?.matches != null)) {
+        const subcmd_name = matches.subcommand.?.name;
+        const subcmd_matches = &matches.subcommand.?.matches.?;
 
-        if (subcmd_ctx.isPresent("help")) {
+        if (subcmd_matches.containsArg("help")) {
             return subcmd_name;
         } else {
             // If current subcommand's arg doesnot have `help` option
             // start to look its child subcommand's arg. (This happens recursively)
-            return findSubcommand(root_cmd, subcmd_ctx);
+            return findSubcommand(root_cmd, subcmd_matches);
         }
     }
     return null;
