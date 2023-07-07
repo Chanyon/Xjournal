@@ -46,6 +46,9 @@ pub const head_end =
     \\h4 {font-size: 18px;}
     \\h5 {font-size: 16px;}
     \\h6 {font-size: 14px;}
+    \\.article_title {
+    \\  border-bottom: 1px solid #898EA4;
+    \\}
     \\</style>
     \\    <style>
     \\:root{

@@ -31,7 +31,10 @@ fn runCmd() !void {
 
     try xj.addArg(Arg.booleanOption("version", 'v', "Static blog generation tool version"));
 
-    const xj_args = try app.parseProcess();
+    const xj_args = app.parseProcess() catch {
+        try app.displayHelp();
+        return;
+    };
 
     if (!(xj_args.containsArgs())) {
         try app.displayHelp();
@@ -53,6 +56,7 @@ fn runCmd() !void {
         }
         if (serve_args.getSingleValue("port")) |port| {
             log.info("open http://localhost:{s}", .{port});
+            try server(allocator, "dist/index.html", port);
         }
         return;
     }

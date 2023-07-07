@@ -26,6 +26,13 @@ pub fn build(b: *std.Build) void {
     // exe.addModule("zap", zap.module("zap"));
     // exe.linkLibrary(zap.artifact("facil.io"));
 
+    //http.zig
+    const http = b.dependency("httpz", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.addModule("httpz", http.module("httpz"));
+
     //yazap
     exe.addAnonymousModule("yazap", .{
         .source_file = .{ .path = "dep/yazap/src/lib.zig" },

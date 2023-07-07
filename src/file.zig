@@ -135,7 +135,7 @@ pub fn pd2Html(home: std.fs.Dir, config: *MasterConfig, open_dir: []const u8, fi
     // try html_file.writeAll(html_segment_str);
     try html_file.writeAll(indexHtml.main_article_start);
     {
-        const title_segment = try std.fmt.allocPrint(al, "<div><h4 style=\"text-align: center\">{s}</h4></div></div>", .{title});
+        const title_segment = try std.fmt.allocPrint(al, "<div class=\"article_title\"><h4 style=\"text-align: center\">{s}</h4></div></div>", .{title});
         try html_file.writeAll(title_segment);
     }
     {
