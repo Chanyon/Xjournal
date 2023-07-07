@@ -3,8 +3,8 @@ const yazap = @import("yazap");
 
 const allocator = std.heap.page_allocator;
 const log = std.log;
-const flag = yazap.flag;
 const App = yazap.App;
+const Arg = yazap.Arg;
 
 pub fn main() anyerror!void {
     var app = App.init(allocator, "myls", "My custom ls");
@@ -13,75 +13,74 @@ pub fn main() anyerror!void {
     var myls = app.rootCommand();
 
     var update_cmd = app.createCommand("update", "Update the app or check for new updates");
-    try update_cmd.addArg(flag.boolean("check-only", null, "Only check for new update"));
-    try update_cmd.addArg(flag.option("branch", 'b', &[_][]const u8{ "stable", "nightly", "beta" }, "Branch to update"));
+    try update_cmd.addArg(Arg.booleanOption("check-only", null, "Only check for new update"));
+    try update_cmd.addArg(Arg.singleValueOptionWithValidValues("branch", 'b', "Branch to update", &[_][]const u8{
+        "stable",
+        "nightly",
+        "beta",
+    }));
 
     try myls.addSubcommand(update_cmd);
 
-    try myls.addArg(flag.boolean("all", 'a', "Don't ignore the hidden directories"));
-    try myls.addArg(flag.boolean("recursive", 'R', "List subdirectories recursively"));
-
-    // For now short name can be null but not long name
-    //     // that's why one-line long name is used for -1 short name
-    try myls.addArg(flag.boolean("one-line", '1', null));
-    try myls.addArg(flag.boolean("size", 's', null));
-    try myls.addArg(flag.boolean("version", null, null));
-
-    try myls.addArg(flag.argOne("ignore", 'I', null));
-    try myls.addArg(flag.argOne("hide", null, null));
-
-    try myls.addArg(flag.option("color", 'C', &[_][]const u8{
+    try myls.addArg(Arg.booleanOption("all", 'a', "Don't ignore the hidden directories"));
+    try myls.addArg(Arg.booleanOption("recursive", 'R', "List subdirectories recursively"));
+    try myls.addArg(Arg.booleanOption("one-line", '1', null));
+    try myls.addArg(Arg.booleanOption("size", 's', null));
+    try myls.addArg(Arg.booleanOption("version", null, null));
+    try myls.addArg(Arg.singleValueOption("ignore", 'I', null));
+    try myls.addArg(Arg.singleValueOption("hide", null, null));
+    try myls.addArg(Arg.singleValueOptionWithValidValues("color", 'C', null, &[_][]const u8{
         "always",
         "auto",
         "never",
-    }, null));
+    }));
 
-    const ls_args = try app.parseProcess();
+    const matches = try app.parseProcess();
 
-    if (!(ls_args.hasArgs())) {
+    if (!(matches.containsArgs())) {
         try app.displayHelp();
         return;
     }
 
-    if (ls_args.isPresent("version")) {
+    if (matches.containsArg("version")) {
         log.info("v0.1.0", .{});
         return;
     }
 
-    if (ls_args.subcommandContext("update")) |update_cmd_args| {
-        if (!(update_cmd_args.hasArgs())) {
+    if (matches.subcommandMatches("update")) |update_cmd_matches| {
+        if (!(update_cmd_matches.containsArgs())) {
             try app.displaySubcommandHelp();
             return;
         }
 
-        if (update_cmd_args.isPresent("check-only")) {
+        if (update_cmd_matches.containsArg("check-only")) {
             std.log.info("Check and report new update", .{});
             return;
         }
-        if (update_cmd_args.valueOf("branch")) |branch| {
+        if (update_cmd_matches.getSingleValue("branch")) |branch| {
             std.log.info("Branch to update: {s}", .{branch});
             return;
         }
         return;
     }
 
-    if (ls_args.isPresent("all")) {
+    if (matches.containsArg("all")) {
         log.info("show all", .{});
         return;
     }
 
-    if (ls_args.isPresent("recursive")) {
+    if (matches.containsArg("recursive")) {
         log.info("show recursive", .{});
         return;
     }
 
-    if (ls_args.valueOf("ignore")) |pattern| {
+    if (matches.getSingleValue("ignore")) |pattern| {
         log.info("ignore pattern = {s}", .{pattern});
         return;
     }
 
-    if (ls_args.isPresent("color")) {
-        const when = ls_args.valueOf("color").?;
+    if (matches.containsArg("color")) {
+        const when = matches.getSingleValue("color").?;
 
         log.info("color={s}", .{when});
         return;

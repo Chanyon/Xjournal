@@ -1,7 +1,0 @@
-# This file is for zig-specific build artifacts.
-.vscode/
-dist/
-zig-build-repos/
-zig-cache/
-zig-out/
-progdoc.exe

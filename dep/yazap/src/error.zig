@@ -97,7 +97,11 @@ pub const Error = struct {
                 self.getIntValue(.min_num_values),
             }),
             ParseError.TooManyArgValue => {
-                try writer.print("Too many values for arg '{s}'\nExpected number of values to be {d}\n", .{ self.getStrValue(.valid_arg), self.getIntValue(.max_num_values) });
+                try writer.print(
+                    \\Too many values for arg '{s}'
+                    \\
+                    \\Expected number of values to be {d}
+                , .{ self.getStrValue(.valid_arg), self.getIntValue(.max_num_values) });
             },
             else => |e| try writer.print("error: Probably some os error occured `{s}`", .{@errorName(e)}),
         }
@@ -140,12 +144,8 @@ pub const Error = struct {
         const active_tag = std.meta.activeTag(value);
         const matched_tag = inline for (std.meta.fields(ContextValueKind)) |field| {
             // Check the field whose T is equal to given T
-            if (field.field_type == T) break @field(ContextValueKind, field.name);
+            if (field.type == T) break @field(ContextValueKind, field.name);
         };
         return (active_tag == matched_tag);
     }
 };
-
-test "emit docs" {
-    std.testing.refAllDecls(@This());
-}

@@ -1,11 +1,10 @@
 const std = @import("std");
-pub const err = @import("error.zig");
-pub const flag = @import("flag.zig");
-pub const args_context = @import("args_context.zig");
 pub const App = @import("App.zig");
 pub const Arg = @import("Arg.zig");
+pub const ArgMatches = @import("arg_matches.zig").ArgMatches;
 pub const Command = @import("Command.zig");
+pub const YazapError = @import("error.zig").YazapError;
 
 test "emit docs" {
-    std.testing.refAllDecls(@This());
+    std.testing.refAllDeclsRecursive(@This());
 }

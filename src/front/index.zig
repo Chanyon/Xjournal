@@ -10,6 +10,7 @@ pub const html_start =
 
 pub const head_end =
     \\<link rel="stylesheet" href="https://cdn.simplecss.org/simple.css">
+    \\<link rel="stylesheet" href="https://unpkg.com/transition-style">
     \\<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/holiday.css@0.11.0" /> -->
     \\<style>
     \\ul li {
@@ -45,6 +46,9 @@ pub const head_end =
     \\h4 {font-size: 18px;}
     \\h5 {font-size: 16px;}
     \\h6 {font-size: 14px;}
+    \\.article_title {
+    \\  border-bottom: 1px solid #898EA4;
+    \\}
     \\</style>
     \\    <style>
     \\:root{
@@ -195,7 +199,7 @@ pub const main_start =
     \\    <div class="my-4 w-4/5 h-full bg-slate-100">
     \\        <!-- content -->
     \\        <div><button id="btn">返回</button></div>
-    \\        <div class="py-2" id="content">   
+    \\        <div class="py-2" id="content" transition-style="in:circle:center">   
 ;
 
 pub const main_end =
@@ -215,7 +219,7 @@ pub const html_end =
 ;
 
 pub const main_article_start =
-    \\<main>
+    \\<main transition-style="in:wipe:down">
     \\<article>
     \\<div>
 ;
