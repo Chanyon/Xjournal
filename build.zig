@@ -33,6 +33,13 @@ pub fn build(b: *std.Build) void {
     });
     exe.addModule("httpz", http.module("httpz"));
 
+    //md-zig
+    const minimd = b.dependency("minimdzig", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.addModule("minimdzig", minimd.module("minimdzig"));
+
     //yazap
     exe.addAnonymousModule("yazap", .{
         .source_file = .{ .path = "dep/yazap/src/lib.zig" },
@@ -41,8 +48,7 @@ pub fn build(b: *std.Build) void {
     exe.addAnonymousModule("zig-toml", .{ .source_file = .{ .path = "dep/zig-toml/src/main.zig" } });
     //zig-string
     exe.addAnonymousModule("zig-string", .{ .source_file = .{ .path = "dep/zig-string/zig-string.zig" } });
-    //md-zig
-    exe.addAnonymousModule("minimd-zig", .{ .source_file = .{ .path = "dep/minimd-zig/src/lib.zig" } });
+
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);
