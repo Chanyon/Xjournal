@@ -30,6 +30,9 @@ pub const script_end =
     \\       btn.style.display = "block";
     \\   }
     \\   content.innerHTML = html;
+    \\   document.querySelectorAll('pre code').forEach((el) => {
+    \\      hljs.highlightElement(el);
+    \\   });
     \\  }
     \\  });
     \\});
@@ -49,5 +52,5 @@ pub const script_end =
     \\        content.appendChild(section);
     \\     });
     \\});
-    \\    </script>
+    \\ </script>
 ;

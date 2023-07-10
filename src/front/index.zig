@@ -12,6 +12,8 @@ pub const head_end =
     \\<link rel="stylesheet" href="https://cdn.simplecss.org/simple.css">
     \\<link rel="stylesheet" href="https://unpkg.com/transition-style">
     \\<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/holiday.css@0.11.0" /> -->
+    \\<link rel="stylesheet"href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/styles/agate.min.css">
+    \\<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/highlight.min.js"></script>
     \\<style>
     \\ul li {
     \\  font-size: 20px;

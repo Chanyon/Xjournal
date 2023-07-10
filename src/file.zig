@@ -1,5 +1,5 @@
 const std = @import("std");
-const markdown = @import("minimd-zig");
+const markdown = @import("minimdzig");
 const String = @import("zig_string").String;
 const fs = std.fs;
 const MasterConfig = @import("./config.zig").MasterConfig;
@@ -74,10 +74,10 @@ pub fn createHtmlAndJsFile(cwd: std.fs.Dir, dir_path: []const u8, content: []con
         // std.log.info("{s} already exist.", .{dir_path});
         dir = try cwd.openDir(dir_path, .{});
         defer dir.close();
-        // TODO: 打开文件并写入, can't create file
         const html_file = try dir.createFile(file_name, .{});
         defer html_file.close();
         try html_file.writeAll(content);
+        return;
     };
     dir = try cwd.openDir(dir_path, .{});
     defer dir.close();
@@ -116,18 +116,11 @@ pub fn pd2Html(home: std.fs.Dir, config: *MasterConfig, open_dir: []const u8, fi
     const html_file_name_it = html_file_name.first();
     const html = try std.fmt.allocPrint(al, "{s}.html", .{html_file_name_it});
     //open dir
-    const dist_dir = try home.openDir(config.*.output, .{});
+    home.makeDir(config.*.output) catch {};
+    var dist_dir = try home.openDir(config.*.output, .{});
+    defer dist_dir.close();
 
-    dist_dir.makeDir(dir_name_it) catch {
-        //todo ^
-        const sub_dir = try dist_dir.openDir(dir_name_it, .{});
-
-        const html_file = try sub_dir.createFile(html, .{});
-        defer html_file.close();
-        const str = try std.mem.join(al, "", parse.out.items);
-        const res = str[0..str.len];
-        try html_file.writeAll(res);
-    };
+    dist_dir.makeDir(dir_name_it) catch {};
     const sub_dir = try dist_dir.openDir(dir_name_it, .{});
 
     const html_file = try sub_dir.createFile(html, .{});
