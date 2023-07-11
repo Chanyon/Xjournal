@@ -16,6 +16,9 @@ pub const script_end =
     \\       const sectionLiAList = document.querySelectorAll("section");
     \\       const content = document.querySelector("#content"); 
     \\       const clickList = [...navList, ...sectionLiAList];
+    \\   hljs.configure({
+    \\     ignoreUnescapedHTML: true,
+    \\   });
     \\ clickList.forEach(link => {
     \\   link.addEventListener("click", async e => {
     \\       e.preventDefault();

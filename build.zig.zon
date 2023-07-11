@@ -12,8 +12,8 @@
             .hash = "12206d05b387f1d0ca6ccb3ee89576260d93d3e65e0377cbce36f26b6fc0b1154b7c",
         },
         .minimdzig = .{
-            .url = "https://github.com/Chanyon/minimd-zig/archive/11bd4106888d52427c98fe96739a27c45864c3fe.tar.gz",
-            .hash = "1220bf5e3997a0ff9f7c0188b723f58145bbb9e2ddcba7acbcaec4b9cc20c2da91e7",
+            .url = "https://github.com/Chanyon/minimd-zig/archive/8ccbff35a4b9479bc1a4834f534a9d452774508b.tar.gz",
+            .hash = "1220df5f094f1f2623affa123fa83340aeb438da022c88a112eb138739388819e937",
         },
     },
 }
