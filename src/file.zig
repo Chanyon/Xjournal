@@ -87,7 +87,7 @@ pub fn createHtmlAndJsFile(cwd: std.fs.Dir, dir_path: []const u8, content: []con
     try html_file.writeAll(content);
 }
 
-pub fn pd2Html(home: std.fs.Dir, config: *MasterConfig, open_dir: []const u8, file_name: []const u8, title: []const u8) !void {
+pub fn md2Html(home: std.fs.Dir, config: *MasterConfig, open_dir: []const u8, file_name: []const u8, title: []const u8) !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     var al = arena.allocator();
