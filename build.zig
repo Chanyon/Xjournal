@@ -18,14 +18,6 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    //zap
-    // const zap = b.dependency("zap", .{
-    //     .target = target,
-    //     .optimize = optimize,
-    // });
-    // exe.addModule("zap", zap.module("zap"));
-    // exe.linkLibrary(zap.artifact("facil.io"));
-
     //http.zig
     const http = b.dependency("httpz", .{
         .target = target,

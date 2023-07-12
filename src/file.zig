@@ -132,11 +132,13 @@ pub fn md2Html(home: std.fs.Dir, config: *MasterConfig, open_dir: []const u8, fi
         try html_file.writeAll(title_segment);
     }
     {
-        // if (config.*.is_headline) {
-        //     // try html_file.writeAll("<ul>");
-        //     try html_file.writeAll(s.@"目录".items);
-        //     try html_file.writeAll("</ul>");
-        // }
+        if (config.*.is_headline) {
+            try html_file.writeAll("<ul>");
+            for (parse.title_nav.items) |item| {
+                try html_file.writeAll(item);
+            }
+            try html_file.writeAll("</ul>");
+        }
     }
     const str = try std.mem.join(al, "", parse.out.items);
     const res = str[0..str.len];
