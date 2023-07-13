@@ -36,8 +36,14 @@ pub fn build(b: *std.Build) void {
     exe.addAnonymousModule("yazap", .{
         .source_file = .{ .path = "dep/yazap/src/lib.zig" },
     });
+
     //zig-toml
-    exe.addAnonymousModule("zig-toml", .{ .source_file = .{ .path = "dep/zig-toml/src/main.zig" } });
+    const toml = b.dependency("zig_toml", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.addModule("zig-toml", toml.module("zig-toml"));
+
     //zig-string
     exe.addAnonymousModule("zig-string", .{ .source_file = .{ .path = "dep/zig-string/zig-string.zig" } });
 

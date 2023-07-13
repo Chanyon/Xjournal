@@ -11,5 +11,9 @@
             .url = "https://github.com/Chanyon/minimd-zig/archive/05e31c230c986b5fcc6926e4aaa857c99447ed3b.tar.gz",
             .hash = "12209afa20529ebd3eb4ff4956abbb42bc8b5ba58a04e90157f6a12ef546accbc309",
         },
+        .zig_toml = .{
+            .url = "https://github.com/sam701/zig-toml/archive/6a0699bc1b72c220ecddf5d53ac31e133c4cbd97.tar.gz",
+            .hash = "1220ad052de45448bb62b794fb1c033db9d95ff1f349951006811d67f29fc8c04123",
+        },
     },
 }

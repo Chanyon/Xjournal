@@ -43,21 +43,15 @@ fn runCmd() !void {
 
     if (xj_args.subcommandMatches("new")) |new_args| {
         //1. create new dir
-        //2. create file or dir in new dir
         const val = new_args.getSingleValue("DirName").?;
         try file.createNewDir(val);
         return;
     }
 
     if (xj_args.subcommandMatches("serve")) |serve_args| {
-        if (!(serve_args.containsArg("port"))) {
-            try app.displaySubcommandHelp();
-            return;
-        }
-        if (serve_args.getSingleValue("port")) |port| {
-            log.info("open http://localhost:{s}", .{port});
-            try server(allocator, "dist/index.html", port);
-        }
+        const port = serve_args.getSingleValue("port") orelse "3000";
+        log.info("open http://localhost:{s}", .{port});
+        try server(allocator, "dist/index.html", port);
         return;
     }
 
