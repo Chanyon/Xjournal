@@ -25,9 +25,14 @@ fn index(req: *httpz.Request, res: *httpz.Response) !void {
 
 fn staticFile(req: *httpz.Request, res: *httpz.Response) !void {
     res.header("Content-Type", "text/html");
-    // std.log.info("{s}", .{req.url.path});
-    const sub_path = try std.fmt.allocPrint(std.heap.page_allocator, "dist{s}", .{req.url.path});
-    defer std.heap.page_allocator.free(sub_path);
+    const path = req.url.path;
+    var buf: std.ArrayList(u8) = std.ArrayList(u8).init(req.arena);
+    defer buf.deinit();
+    const result = try httpz.Url.unescape(req.arena, buf.items, path);
+    // std.log.debug("{s}", .{result.value});
+
+    const sub_path = try std.fmt.allocPrintZ(req.arena, "dist{s}", .{result.value});
+    defer req.arena.free(sub_path);
 
     var file = std.fs.cwd().openFile(sub_path, .{}) catch {
         res.body = "Not Found";
@@ -35,5 +40,5 @@ fn staticFile(req: *httpz.Request, res: *httpz.Response) !void {
     };
     defer file.close();
 
-    res.body = try file.readToEndAlloc(req.arena, 100000);
+    res.body = try file.readToEndAlloc(req.arena, 1000000);
 }

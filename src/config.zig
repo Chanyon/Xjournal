@@ -3,8 +3,10 @@ pub const MasterConfig = struct {
     github: []const u8,
     menus: []const Menu,
     issues: []const Issue,
+    //todo
+    //templates: []const Template,
     template: *Template,
-    output: []const u8,
+    output: []const u8 = "dist",
     is_headline: bool = true,
 };
 
@@ -18,6 +20,7 @@ const Issue = struct {
     path: []const u8,
 };
 
+// const Template = struct { path: []const u8 };
 const Template = struct {
     about: []const u8,
     footer: []const u8,

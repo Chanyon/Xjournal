@@ -66,6 +66,15 @@ pub fn createNewDir(dir_name: []const u8) !void {
         \\pub_date = "2023-02-18"
     ;
     _ = try issue_toml.write(issue_toml_content);
+
+    try dir.makeDir("template");
+    const temp_dir = try dir.openDir("template", .{});
+    var temp_file = try temp_dir.createFile("about.md", .{});
+    defer temp_file.close();
+    try temp_file.writeAll("about file.");
+
+    temp_file = try temp_dir.createFile("footer.md", .{});
+    try temp_file.writeAll("footer file.");
 }
 
 pub fn createHtmlAndJsFile(cwd: std.fs.Dir, dir_path: []const u8, content: []const u8, file_name: []const u8) !void {
@@ -216,6 +225,7 @@ pub fn getFilename(al: std.mem.Allocator, cwd: std.fs.Dir, path: []const u8) !?[
         if (std.mem.endsWith(u8, entry.name, ".toml")) {
             const str = try std.fmt.allocPrint(al, "{s}", .{entry.name});
             file = str;
+            break;
         }
     }
 

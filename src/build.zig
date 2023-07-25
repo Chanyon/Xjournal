@@ -77,7 +77,7 @@ pub fn build() !void {
                 const obj_key_val = try std.fmt.allocPrint(allocator, "\n\"/{s}/{s}\":\"./{s}/{s}.html\",\n", .{ dir_path, file_name, dir_path, file_name });
                 try jsString.concat(obj_key_val);
 
-                std.debug.print("{s} {s} => html\n", .{ item.path, link.file });
+                std.debug.print("{s} {s} => {s}.html\n", .{ item.path, link.file, file_name });
                 // 遍历生成html file
                 try genHtml(home, &master_config, item.path, link.file, link.title);
             }
