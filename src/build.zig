@@ -119,5 +119,7 @@ pub fn build() !void {
     // create index.html
     try createFile(home, master_config.output, myString.str(), "index.html");
     //copy `images dir` file
-    try copyDirFile(home, master_config.images_path.?, master_config.output, "images");
+    if (master_config.images_path) |path| {
+        try copyDirFile(home, path, master_config.output, "images");
+    }
 }

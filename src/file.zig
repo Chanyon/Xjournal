@@ -173,7 +173,7 @@ pub fn copyDirFile(home: std.fs.Dir, src_dir: []const u8, dest_dir: []const u8, 
     var des_dir = try home.openDir(dest_dir, .{});
     defer des_dir.close();
 
-    try des_dir.makeDir("images");
+    des_dir.makeDir("images") catch {};
     var images_dir = try des_dir.openDir(sub_dir_name, .{});
     defer images_dir.close();
 
