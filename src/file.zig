@@ -23,9 +23,13 @@ pub fn createNewDir(dir_name: []const u8) !void {
         \\github = "https://github_path"
         \\output = "dist"
         \\is_headline = false
-        \\[template]
-        \\about = "content/template/about.md"
-        \\footer = "content/template/footer.md"
+        \\images_path = "content/images"
+        \\[[templates]]
+        \\name = "about"
+        \\path = "content/template/about.md"
+        \\[[templates]]
+        \\name = "footer"
+        \\path = "content/template/footer.md"
         \\[[menus]]
         \\name = "Home" 
         \\url = "/home"
@@ -153,29 +157,35 @@ pub fn md2Html(home: std.fs.Dir, config: *MasterConfig, open_dir: []const u8, fi
     const res = str[0..str.len];
     try html_file.writeAll(res);
     try html_file.writeAll(indexHtml.main_article_end);
-    // try html_file.writeAll(indexHtml.footer_start);
-    // try html_file.writeAll(footer_end);
-    // try html_file.writeAll(indexHtml.html_end);
 }
 
 pub fn genTemplateHtml(al: std.mem.Allocator, home: std.fs.Dir, path: []const u8) !?markdown.Parser {
-    var dir_name = std.mem.split(u8, path, "/");
-    const dir_path = try std.fmt.allocPrint(al, "{s}/{s}", .{ dir_name.next().?, dir_name.next().? });
-
-    var dir = home.openDir(dir_path, .{}) catch {
-        std.debug.print("open dir fail\n", .{});
+    const md_file = home.readFileAlloc(al, path, 1024 * 1024) catch {
+        std.log.info("file not found: {s}\n", .{path});
         return null;
     };
-    defer dir.close();
 
-    //read file
-    const file_name = dir_name.next().?;
-    const md_file = dir.readFileAlloc(al, file_name, 1024 * 1024) catch {
-        std.log.info("file not found: {s}\n", .{file_name});
-        return null;
-    };
     var parse = try markdown.parser(al, md_file);
     return parse;
+}
+
+pub fn copyDirFile(home: std.fs.Dir, src_dir: []const u8, dest_dir: []const u8, sub_dir_name: []const u8) !void {
+    var des_dir = try home.openDir(dest_dir, .{});
+    defer des_dir.close();
+
+    try des_dir.makeDir("images");
+    var images_dir = try des_dir.openDir(sub_dir_name, .{});
+    defer images_dir.close();
+
+    var dir = try home.openIterableDir(src_dir, .{});
+    defer dir.close();
+
+    var dir_iter = dir.iterate();
+    while (try dir_iter.next()) |entry| {
+        if (entry.kind == .file) {
+            try dir.dir.copyFile(entry.name, images_dir, entry.name, .{});
+        }
+    }
 }
 
 pub fn spiltTwoStep(str: []const u8, delimiter: []const u8) []const u8 {

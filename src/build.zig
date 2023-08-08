@@ -10,6 +10,8 @@ const genHtml = @import("./file.zig").md2Html;
 const template2Html = @import("./file.zig").genTemplateHtml;
 const splitTwoStep = @import("./file.zig").spiltTwoStep;
 const splitFirst = @import("./file.zig").splitFisrt;
+const Parser = @import("minimdzig").Parser;
+const copyDirFile = @import("./file.zig").copyDirFile;
 
 pub fn build() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
@@ -42,6 +44,8 @@ pub fn build() !void {
         //* link herf
         const nav_link: []const u8 = try std.fmt.allocPrint(allocator, "<li class=\"mx-4\"><a data-href=\"{s}\">{s}</a></li>", .{ menu.url, menu.name });
         try myString.concat(nav_link);
+        const menu_url_val = try std.fmt.allocPrint(allocator, "\n\"{s}\":\".{s}.html\",\n", .{ menu.url, menu.url });
+        try jsString.concat(menu_url_val);
     }
     try myString.concat(idxHtml.header_end);
 
@@ -91,26 +95,29 @@ pub fn build() !void {
 
     try myString.concat(idxHtml.main_end);
     try myString.concat(idxHtml.footer_start);
-    var footer = try template2Html(allocator, home, master_config.template.*.footer);
-    defer footer.?.deinit();
-    var str = try std.mem.join(allocator, "", footer.?.out.items);
-    var res = str[0..str.len];
-    const footer_end: []const u8 = try std.fmt.allocPrint(allocator, "{s}</footer> </div>", .{res});
-    try myString.concat(footer_end);
-    //script
-    try jsString.concat("}\n");
+
+    var c_html: ?Parser = undefined;
+    for (master_config.templates) |temp| {
+        c_html = try template2Html(allocator, home, temp.path);
+        const str = try std.mem.join(allocator, "", c_html.?.out.items);
+        const res = str[0..str.len];
+        if (std.mem.eql(u8, "footer", temp.name)) {
+            const footer_end: []const u8 = try std.fmt.allocPrint(allocator, "{s}</footer> </div>", .{res});
+            try myString.concat(footer_end);
+        } else {
+            const file_name = try std.fmt.allocPrint(allocator, "{s}.html", .{temp.name});
+            try createFile(home, master_config.output, res, file_name);
+        }
+    }
+    defer c_html.?.deinit();
+
+    try jsString.concat("};\n");
     try jsString.concat(idxJs.script_end);
     try myString.concat(jsString.str());
     try myString.concat(idxHtml.html_end);
 
     // create index.html
     try createFile(home, master_config.output, myString.str(), "index.html");
-
-    //about.pd => about.html
-    var about = try template2Html(allocator, home, master_config.template.*.about);
-    defer about.?.deinit();
-    str = try std.mem.join(allocator, "", about.?.out.items);
-    res = str[0..str.len];
-
-    try createFile(home, master_config.output, res, "about.html");
+    //copy `images dir` file
+    try copyDirFile(home, master_config.images_path.?, master_config.output, "images");
 }

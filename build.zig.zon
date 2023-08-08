@@ -1,15 +1,15 @@
 .{
     .name = "Xjournal",
-    .version = "0.0.1",
+    .version = "0.0.2",
     .dependencies = .{
         //
         .httpz = .{
-            .url = "https://github.com/karlseguin/http.zig/archive/f240911af720ffcfe745912516cab7945dd777a0.tar.gz",
-            .hash = "12206d05b387f1d0ca6ccb3ee89576260d93d3e65e0377cbce36f26b6fc0b1154b7c",
+            .url = "https://github.com/karlseguin/http.zig/archive/e8b91f81f09e949575edd880b6673604ea5f6e33.tar.gz",
+            .hash = "122057bd82bc09143c9810a4a6a604432e62b8b53db7860d98b502bc6090e4c3c9e8",
         },
         .minimdzig = .{
-            .url = "https://github.com/Chanyon/minimd-zig/archive/05e31c230c986b5fcc6926e4aaa857c99447ed3b.tar.gz",
-            .hash = "12209afa20529ebd3eb4ff4956abbb42bc8b5ba58a04e90157f6a12ef546accbc309",
+            .url = "https://github.com/Chanyon/minimd-zig/archive/6dcf894bc291913ca4a6a5561cb7f64e07e8dd55.tar.gz",
+            .hash = "122095128561b597cc3f40b92453d4b1017877c78e129c94036e2753e325ffde212c",
         },
         .zig_toml = .{
             .url = "https://github.com/sam701/zig-toml/archive/6a0699bc1b72c220ecddf5d53ac31e133c4cbd97.tar.gz",

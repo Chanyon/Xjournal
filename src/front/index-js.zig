@@ -2,7 +2,6 @@ pub const script_start =
     \\<script>
     \\        const routes = {
     \\            "/home": "./index.html",
-    \\            "/about": "./about.html",
 ;
 // };
 pub const script_end =
