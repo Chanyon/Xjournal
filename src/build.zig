@@ -37,12 +37,12 @@ pub fn build() !void {
     try myString.concat(idxHtml.head_end);
     try myString.concat(idxHtml.header_start);
 
-    const blog_name: []const u8 = try std.fmt.allocPrint(allocator, "<div class=\"basis-1/4 pl-4\"> {s} </div><div class=\"basis-4/5\"><ul class=\"flex flex-row\">", .{master_config.blog_name});
+    const blog_name: []const u8 = try std.fmt.allocPrint(allocator, "<div> {s} </div><div><ul>", .{master_config.blog_name});
     try myString.concat(blog_name);
 
     for (master_config.menus) |menu| {
         //* link herf
-        const nav_link: []const u8 = try std.fmt.allocPrint(allocator, "<li class=\"mx-4\"><a data-href=\"{s}\">{s}</a></li>", .{ menu.url, menu.name });
+        const nav_link: []const u8 = try std.fmt.allocPrint(allocator, "<li><a data-href=\"{s}\">{s}</a></li>", .{ menu.url, menu.name });
         try myString.concat(nav_link);
         const menu_url_val = try std.fmt.allocPrint(allocator, "\n\"{s}\":\".{s}.html\",\n", .{ menu.url, menu.url });
         try jsString.concat(menu_url_val);
@@ -65,17 +65,17 @@ pub fn build() !void {
             const path: []const u8 = try std.fmt.allocPrint(allocator, "./{s}/{s}", .{ item.path, file });
             try parser2.parseFile(path, &article_config);
             // section tag
-            const section_start = "<section class=\"h-auto border-b-2 border-black border-double\">";
+            const section_start = "<section>";
             try myString.concat(section_start);
 
-            const h3: []const u8 = try std.fmt.allocPrint(allocator, "<h5 class=\"h-16 p-2 text-center text-2xl\">{s}</h5> <ul class=\"divide-y divide-black divide-dashed\">", .{item.title});
+            const h3: []const u8 = try std.fmt.allocPrint(allocator, "<h5>{s}</h5> <ul>", .{item.title});
 
             try myString.concat(h3);
             //* article link
             const dir_path = splitTwoStep(item.path, "/");
             for (article_config.articles) |link| {
                 const file_name = splitFirst(link.file, ".");
-                const li_link: []const u8 = try std.fmt.allocPrint(allocator, "<li class=\"h-16 p-2\"><a data-href=\"/{s}/{s}\">{s}</a><p class=\"pub-date\">{s}</p></li>", .{ dir_path, file_name, link.title, link.pub_date });
+                const li_link: []const u8 = try std.fmt.allocPrint(allocator, "<li><a data-href=\"/{s}/{s}\">{s}</a><p class=\"pub-date\">{s}</p></li>", .{ dir_path, file_name, link.title, link.pub_date });
                 try myString.concat(li_link);
 
                 const obj_key_val = try std.fmt.allocPrint(allocator, "\n\"/{s}/{s}\":\"./{s}/{s}.html\",\n", .{ dir_path, file_name, dir_path, file_name });

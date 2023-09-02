@@ -62,25 +62,6 @@ pub const head_end =
     \\    margin: auto;
     \\    padding: 0 1em;
     \\}
-    \\#navigation {
-    \\    padding: 0 1em;
-    \\}
-    \\@media screen and (min-width: 1025px) {
-    \\    #navigation {
-    \\        overflow: auto;
-    \\        width: var(--nav-width);
-    \\        height: 100vh;
-    \\        position: fixed;
-    \\        top:0;
-    \\        left:0;
-    \\        bottom:0;
-    \\        padding: unset;
-    \\        margin-left: var(--nav-margin-l);
-    \\    }
-    \\    #contents-wrapper {
-    \\        margin-left: calc(var(--nav-width) + var(--nav-margin-l));
-    \\    }
-    \\}
     \\table, td {
     \\    border-collapse: collapse;
     \\    border: 1px solid grey;
@@ -156,36 +137,15 @@ pub const head_end =
     \\ text-align: right;
     \\ color: #999;
     \\}
-    \\.t_left{
-    \\    text-align:left;
-    \\}
-    \\.t_right{
-    \\    text-align:right;
-    \\}
-    \\.t_center{
-    \\    text-align:center;
-    \\}
-    \\.t_justify{
-    \\    text-align:justify;
-    \\}
-    \\.tv_top{
-    \\    vertical-align:top;
-    \\}
-    \\.tv_middle{
-    \\    vertical-align:middle;
-    \\}
-    \\.tv_bottom{
-    \\    vertical-align:bottom;
-    \\}
     \\</style>
     \\  </head>
     \\<body class="bg-slate-800">
-    \\    <div class="container xl mx-auto">
+    \\    <div class="container">
 ;
 
 pub const header_start =
-    \\<header class="flex flex-row items-center h-24 w-auto bg-slate-300">
-    \\<nav class="flex flex-row items-center h-10 w-full">
+    \\<header>
+    \\<nav>
 ;
 
 pub const header_end =
@@ -196,9 +156,9 @@ pub const header_end =
 ;
 // inset main
 pub const main_start =
-    \\<main class="flex justify-center h-auto">
+    \\<main>
     \\    <!-- 版心 -->
-    \\    <div class="my-4 w-4/5 h-full bg-slate-100">
+    \\    <div>
     \\        <!-- content -->
     \\        <div><button id="btn">返回</button></div>
     \\        <div class="py-2" id="content" transition-style="in:circle:center">   
@@ -212,7 +172,7 @@ pub const main_end =
 // inset footer
 
 pub const footer_start =
-    \\<footer class="h-64 mt-4 bg-slate-300">
+    \\<footer>
 ;
 
 pub const html_end =
