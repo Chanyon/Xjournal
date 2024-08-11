@@ -13,7 +13,7 @@ pub fn build(b: *std.Build) void {
 
     const exe = b.addExecutable(.{
         .name = "xj",
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -23,29 +23,35 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    exe.addModule("httpz", http.module("httpz"));
+    exe.root_module.addImport("httpz", http.module("httpz"));
 
     //md-zig
-    const minimd = b.dependency("minimdzig", .{
+    const minimd = b.dependency("minimd", .{
         .target = target,
         .optimize = optimize,
     });
-    exe.addModule("minimdzig", minimd.module("minimdzig"));
+    exe.root_module.addImport("minimdzig", minimd.module("minimd"));
 
     //yazap
-    exe.addAnonymousModule("yazap", .{
-        .source_file = .{ .path = "dep/yazap/src/lib.zig" },
+    const yazap = b.dependency("yazap", .{
+        .target = target,
+        .optimize = optimize,
     });
+    exe.root_module.addImport("yazap", yazap.module("yazap"));
 
     //zig-toml
     const toml = b.dependency("zig_toml", .{
         .target = target,
         .optimize = optimize,
     });
-    exe.addModule("zig-toml", toml.module("zig-toml"));
+    exe.root_module.addImport("zig-toml", toml.module("zig-toml"));
 
     //zig-string
-    exe.addAnonymousModule("zig-string", .{ .source_file = .{ .path = "dep/zig-string/zig-string.zig" } });
+    const string = b.dependency("string", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.root_module.addImport("string", string.module("string"));
 
     b.installArtifact(exe);
 
@@ -60,7 +66,7 @@ pub fn build(b: *std.Build) void {
     run_step.dependOn(&run_cmd.step);
 
     const exe_tests = b.addTest(.{
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });

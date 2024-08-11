@@ -3,4 +3,5 @@
 dist/
 zig-build-repos/
 zig-cache/
+.zig-cache/
 zig-out/

@@ -24,7 +24,7 @@ fn runCmd() !void {
     var serve_cmd = app.createCommand("serve", "create a new server");
     try serve_cmd.addArg(Arg.singleValueOption("port", 'p', "Don't ignore the command"));
 
-    var build_cmd = app.createCommand("build", "Static blog build");
+    const build_cmd = app.createCommand("build", "Static blog build");
     try xj.addSubcommand(new_cmd);
     try xj.addSubcommand(serve_cmd);
     try xj.addSubcommand(build_cmd);

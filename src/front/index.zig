@@ -41,7 +41,8 @@ pub const head_end =
     \\    width: 1024px;
     \\  }
     \\}
-    \\h1,h2,h3,h4,h5,h6{margin: 15px 0;}
+    \\p {padding:8px;}
+    \\h1,h2,h3,h4,h5,h6{margin-top: 30px;margin-bottom: 15px;}
     \\h1 {font-size: 24px;}
     \\h2 {font-size: 22px;}
     \\h3 {font-size: 20px;}
