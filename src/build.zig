@@ -1,5 +1,5 @@
 const std = @import("std");
-const toml = @import("zig-toml");
+const toml = @import("toml");
 const String = @import("string").String;
 const configs = @import("./config.zig");
 const idxHtml = @import("./front/index.zig");

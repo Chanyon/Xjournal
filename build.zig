@@ -13,9 +13,11 @@ pub fn build(b: *std.Build) void {
 
     const exe = b.addExecutable(.{
         .name = "xj",
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.addModule("xj", .{
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
     });
 
     //http.zig
@@ -26,28 +28,25 @@ pub fn build(b: *std.Build) void {
     exe.root_module.addImport("httpz", http.module("httpz"));
 
     //md-zig
-    const minimd = b.dependency("minimd", .{
+    const minimd = b.dependency("minimdzig", .{
         .target = target,
         .optimize = optimize,
     });
     exe.root_module.addImport("minimdzig", minimd.module("minimd"));
 
-    //yazap
-    const yazap = b.dependency("yazap", .{
-        .target = target,
-        .optimize = optimize,
-    });
-    exe.root_module.addImport("yazap", yazap.module("yazap"));
+    //clap
+    const clap = b.dependency("clap", .{});
+    exe.root_module.addImport("clap", clap.module("clap"));
 
     //zig-toml
-    const toml = b.dependency("zig_toml", .{
+    const toml = b.dependency("toml", .{
         .target = target,
         .optimize = optimize,
     });
-    exe.root_module.addImport("zig-toml", toml.module("zig-toml"));
+    exe.root_module.addImport("toml", toml.module("toml"));
 
     //zig-string
-    const string = b.dependency("string", .{
+    const string = b.dependency("zig_string", .{
         .target = target,
         .optimize = optimize,
     });
@@ -66,9 +65,11 @@ pub fn build(b: *std.Build) void {
     run_step.dependOn(&run_cmd.step);
 
     const exe_tests = b.addTest(.{
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.addModule("main", .{
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
     });
 
     const test_step = b.step("test", "Run unit tests");

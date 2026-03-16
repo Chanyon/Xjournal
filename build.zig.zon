@@ -1,27 +1,28 @@
 .{
-    .name = "Xjournal",
-    .version = "0.0.3",
+    .name = .Xjournal,
+    .version = "0.4.0",
+    .fingerprint = 0xbf2a0f2970a90448,
     .dependencies = .{
         //
         .httpz = .{
-            .url = "https://github.com/karlseguin/http.zig/archive/5a681b4a34eb5f2c9dec37645f7742a61ffa9b76.tar.gz",
-            .hash = "122041d9c6961cd3c3436d7d47568855577365f35a5edf6ced3b9b29cae4a811998e",
+            .url = "git+https://github.com/karlseguin/http.zig#844f8016e6616f00b05d4cc3c713307b0fe586c7",
+            .hash = "httpz-0.0.0-PNVzrBtMBwAPcQx3mNEgat3Xbsynw-eIC9SmOX5M9XtP",
         },
-        .minimd = .{
-            .url = "https://github.com/Chanyon/minimd-zig/archive/e0f1a961a2dffc47038ff0d21676be63a23b5808.tar.gz",
-            .hash = "1220f711c4977c213a40226169fa9c5c8068b236d68af65d2808f3e089c953cf62fa",
+        .toml = .{
+            .url = "git+https://github.com/sam701/zig-toml#b9135f8238cd54c1faffb0e8dea5aff3e5cdd7f8",
+            .hash = "toml-0.3.0-bV14Bd-EAQBKoXhpYft303BtA2vgLNlxntUCIWgRUl46",
         },
-        .zig_toml = .{
-            .url = "https://github.com/sam701/zig-toml/archive/67e35c75c5d11caf398bccae39d14d7187d1a952.tar.gz",
-            .hash = "1220ced9b2f6943f688ce1e20a40f143d83c4182320e4b9d30e470b010d44b356f0a",
+        .zig_string = .{
+            .url = "git+https://github.com/JakubSzark/zig-string#84f1279fe1c450295ca64f9a2f54e3950fa61f80",
+            .hash = "zig_string-0.10.0-6dpLWvWcAAD1wSd3dgAqAtOC-VA1aHx6pn2VuNy4ndzI",
         },
-        .yazap = .{
-            .url = "https://github.com/prajwalch/yazap/archive/c84a17de0103abcfd90d184d44749aa197fbd87d.tar.gz",
-            .hash = "12208664f483e9ce606cdbdcb52b1caea79786654d5897aa7dd5b91d3b9cf3d6ffce",
+        .minimdzig = .{
+            .url = "git+https://github.com/Chanyon/minimd-zig#9d5d528f09de2266f7b71d410fc3366ce472f2e4",
+            .hash = "minimdzig-0.1.0-Xl_qyrY9AwAFPoJTdhEDecUVYHOfJQW4KcGhQNAeZqPz",
         },
-        .string = .{
-            .url = "https://github.com/JakubSzark/zig-string/archive/f8f2c68eb7597ff03f6244b27d27be151b3fa650.tar.gz",
-            .hash = "1220ac012ef4f5f1c488bdfbb8f5b5c42cefde0c0916a7e7f8f63c15b4ab085cc876",
+        .clap = .{
+            .url = "git+https://github.com/Hejsil/zig-clap#5289e0753cd274d65344bef1c114284c633536ea",
+            .hash = "clap-0.11.0-oBajB-HnAQDPCKYzwF7rO3qDFwRcD39Q0DALlTSz5H7e",
         },
     },
     .paths = .{""},

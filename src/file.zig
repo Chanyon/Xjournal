@@ -120,12 +120,12 @@ pub fn md2Html(home: std.fs.Dir, config: *MasterConfig, open_dir: []const u8, fi
     defer parse.deinit();
     //create dir and file
     // content/issue-1
-    var dir_name = std.mem.split(u8, open_dir, "/");
+    var dir_name = std.mem.splitAny(u8, open_dir, "/");
     var dir_name_it = dir_name.next().?;
     dir_name_it = dir_name.next().?;
 
-    // example.pd / .md
-    var html_file_name = std.mem.split(u8, file_name, ".");
+    // example .md
+    var html_file_name = std.mem.splitAny(u8, file_name, ".");
     const html_file_name_it = html_file_name.first();
     const html = try std.fmt.allocPrint(al, "{s}.html", .{html_file_name_it});
     //open dir
@@ -190,14 +190,14 @@ pub fn copyDirFile(home: std.fs.Dir, src_dir: []const u8, dest_dir: []const u8, 
 
 pub fn spiltTwoStep(str: []const u8, delimiter: []const u8) []const u8 {
     // content/issue-1
-    var dir_name = std.mem.split(u8, str, delimiter);
+    var dir_name = std.mem.splitAny(u8, str, delimiter);
     var dir_name_it = dir_name.next().?;
     dir_name_it = dir_name.next().?;
     return dir_name_it;
 }
 
 pub fn splitFisrt(str: []const u8, delimiter: []const u8) []const u8 {
-    var html_file_name = std.mem.split(u8, str, delimiter);
+    var html_file_name = std.mem.splitAny(u8, str, delimiter);
     const html_file_name_it = html_file_name.first();
     return html_file_name_it;
 }
